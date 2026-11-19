@@ -296,17 +296,25 @@
   }
   function setupNavigation(){
     const overlay=$x('rtcBlackout');
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    let transitioning=false,navigatePass=false;
     qa('.nav button[data-page]').forEach(btn=>btn.addEventListener('click',e=>{
-      if(navigatePass || !overlay || matchMedia('(prefers-reduced-motion: reduce)').matches || localStorage.getItem('rtc_matrix_enabled')==='false')return;
+      // The terminal-rain setting must NOT disable page navigation animations.
+      if(navigatePass)return;
+      if(transitioning){e.preventDefault();e.stopImmediatePropagation();return;}
       const active=document.querySelector('.page.active');
       if(active?.id===btn.dataset.page)return;
-      e.stopImmediatePropagation();e.preventDefault();
-      overlay.classList.remove('on');void overlay.offsetWidth;overlay.classList.add('on');
-      setTimeout(()=>{navigatePass=true;btn.click();navigatePass=false;},220);
-      setTimeout(()=>overlay.classList.remove('on'),670);
+      if(!overlay || reduced.matches)return;
+      e.preventDefault();e.stopImmediatePropagation();
+      transitioning=true;
+      overlay.classList.remove('on');void overlay.offsetWidth;
+      overlay.classList.add('on');
+      // Switch pages only after the screen is covered. Never alter app data/auth.
+      setTimeout(()=>{navigatePass=true;try{btn.click();}finally{navigatePass=false;}},340);
+      setTimeout(()=>{overlay.classList.remove('on');transitioning=false;},830);
     },true));
     const communityBtn=document.querySelector('.nav button[data-page="community"]');
-    if(communityBtn) communityBtn.addEventListener('click',()=>{setTimeout(()=>loadPublicDirectory(),330);});
+    if(communityBtn)communityBtn.addEventListener('click',()=>setTimeout(()=>loadPublicDirectory(),360));
   }
   function enhanceRender(){
     if(typeof render!=='function')return;

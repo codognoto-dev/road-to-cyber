@@ -1,5 +1,5 @@
 /* Road to Cyber V8: visual cinematic, typography, profiles, community */
-:root {--transition: 660ms;}
+:root {--transition: 800ms;}
 body {font-family:"Manrope",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.57;letter-spacing:0;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 p{font-size:15px;line-height:1.68}
 .small,small{font-family:inherit;font-size:13px;letter-spacing:0;line-height:1.62}
@@ -13,16 +13,18 @@ p{font-size:15px;line-height:1.68}
 .btn:hover:not(:disabled){transform:translateY(-2px) scale(1.013)}
 .panel,.neo-card,.stat,.day-card,.linkcard,.member{box-shadow:inset 0 1px rgba(255,255,255,.025),0 10px 30px rgba(0,0,0,.21)}
 .panel:hover,.linkcard:hover{border-color:rgba(77,245,255,.38)}
-canvas#matrix{opacity:.67;filter:saturate(1.15);mix-blend-mode:screen}
+canvas#matrix{opacity:.78;filter:saturate(1.15);mix-blend-mode:screen;pointer-events:none}
 body[data-motion="off"] canvas#matrix{opacity:0!important}
 .auth-card,.hero-app,.panel.card{background:linear-gradient(125deg,rgba(12,27,47,.88),rgba(10,19,37,.93))}
 .hero{background:linear-gradient(120deg,rgba(10,27,49,.9),rgba(6,14,30,.92))}
 .content{position:relative}
 .rtc-blackout{position:fixed;inset:0;pointer-events:none;z-index:9990;opacity:0;background:radial-gradient(circle at 50% 50%,#0c1833,#01050e 75%);display:grid;place-items:center}
-.rtc-blackout.on{animation:rtcBlackout var(--transition) steps(1,end) both}
+.rtc-blackout.on{animation:rtcBlackout var(--transition) ease-in-out both;will-change:opacity}
 .rtc-blackout .rtc-scanline{width:100%;height:2px;position:absolute;top:47%;background:#4df5ff;box-shadow:0 0 26px 8px #4df5ff80}
 .rtc-blackout .rtc-scanline:after{content:"アクセス中 • LOADING";position:absolute;top:-20px;left:50%;transform:translateX(-50%);font:700 13px Manrope,sans-serif;letter-spacing:.25em;color:#a8feff;white-space:nowrap}
-@keyframes rtcBlackout{0%,9%{opacity:0}10%,20%{opacity:.82}21%,27%{opacity:.17}28%,58%{opacity:.96}59%,75%{opacity:.57}76%,100%{opacity:0}}
+@keyframes rtcBlackout{0%{opacity:0}13%{opacity:.82}36%,56%{opacity:1}73%{opacity:.72}100%{opacity:0}}
+.rtc-blackout.on .rtc-scanline{animation:rtcScan 800ms ease-in-out both}
+@keyframes rtcScan{0%{top:8%;opacity:0}30%{top:42%;opacity:1}60%{top:60%;opacity:.95}100%{top:94%;opacity:0}}
 .rtc-brand-symbol{width:52px;height:52px;object-fit:contain;filter:drop-shadow(0 0 9px #4df5ff70)}
 .brand .logo{width:60px;height:60px;background:#071927;border:1px solid #395a6e;overflow:visible}
 .brand .logo .rtc-brand-symbol{width:100%;height:100%}
@@ -73,3 +75,8 @@ body[data-motion="off"] canvas#matrix{opacity:0!important}
 @media(max-width:1000px){.rtc-studio-grid{grid-template-columns:1fr}.rtc-member-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){.rtc-section{padding:15px}.rtc-member-grid{grid-template-columns:1fr}.rtc-select-cover{grid-template-columns:repeat(2,minmax(0,1fr))}.rtc-avatar{width:72px;height:72px}.rtc-profile-name{font-size:22px}.rtc-cover-inner{padding:50px 14px 15px}.rtc-cover{min-height:150px}.rtc-row{gap:9px}}
 @media(prefers-reduced-motion:reduce){.page.active{animation:none!important}.rtc-blackout{display:none!important}.rtc-member-card,.rtc-cover-choice,.btn{transition:none!important}}
+
+/* V8.1 terminal rain visibility, without reducing text contrast */
+canvas#matrix{position:fixed!important;inset:0!important;z-index:0!important;opacity:.78;pointer-events:none!important;}
+#authView,#appView{position:relative;z-index:1}
+body[data-motion="off"] canvas#matrix{opacity:0!important}

@@ -406,41 +406,87 @@ function showQuiz(cycle){
 }
 
 function startMatrix(){
-  const canvas=el('matrix'); if(!canvas) return;
-  const ctx=canvas.getContext('2d',{alpha:true}); if(!ctx) return;
-  const chars='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン学習未来雲網守心0101010101'.split('');
-  const media=matchMedia('(prefers-reduced-motion: reduce)');
-  const toggle=el('motionToggle');
-  const saved=localStorage.getItem('rtc_matrix_enabled');
-  if(toggle) toggle.checked = saved !== 'false';
-  let width=0,height=0,cell=20,cols=[],last=0;
-  const active = ()=> !media.matches && !document.hidden && (toggle ? toggle.checked : true);
-  const resize = ()=>{
-    width=window.innerWidth; height=window.innerHeight;
-    const dpr=Math.min(window.devicePixelRatio||1,1.5);
-    canvas.width=Math.round(width*dpr); canvas.height=Math.round(height*dpr);
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    cell=width<700?22:20;
-    cols=Array.from({length:Math.ceil(width/cell)},()=>({y:Math.random()*height/cell,speed:0.45+Math.random()*1,color:Math.random()>.82?'#ff4dce':Math.random()>.5?'#4df5ff':'#a9ff5a'}));
-  };
-  const draw=(t)=>{
-    requestAnimationFrame(draw);
-    if(!active() || t-last<86) return;
-    last=t;
-    ctx.fillStyle='rgba(5,12,23,.18)'; ctx.fillRect(0,0,width,height);
-    ctx.font=`600 ${width<680?14:15}px monospace`; ctx.textBaseline='top';
-    cols.forEach((c,i)=>{
-      const x=i*cell+2, y=c.y*cell;
-      const ch=chars[Math.floor(Math.random()*chars.length)];
-      ctx.fillStyle=c.color; ctx.shadowBlur=8; ctx.shadowColor=c.color; ctx.fillText(ch,x,y); ctx.shadowBlur=0;
-      c.y += c.speed;
-      if(y>height+cell*4 && Math.random()>.92) c.y = -Math.random()*height/cell*.4;
-    });
-  };
-  if(toggle) toggle.addEventListener('change',()=>{ localStorage.setItem('rtc_matrix_enabled', toggle.checked?'true':'false'); ctx.clearRect(0,0,width,height); });
-  resize(); window.addEventListener('resize', resize, {passive:true}); requestAnimationFrame(draw);
-}
+  // V8.1: true transparent canvas; no accumulating opaque rectangle over the page.
+  const canvas=el('matrix');
+  if (!canvas || canvas.dataset.rtcRainStarted === '1') return;
+  const ctx=canvas.getContext('2d',{alpha:true});
+  if (!ctx) return;
+  canvas.dataset.rtcRainStarted='1';
 
+  const jp='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン学習未来雲網守心'.split('');
+  const bits='01011001'.split('');
+  const media=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const toggle=el('motionToggle');
+  let stored = null;
+  try { stored=localStorage.getItem('rtc_matrix_enabled'); } catch (_) {}
+  if (toggle) toggle.checked = stored !== 'false';
+
+  let width=0,height=0,cell=24,streams=[],last=0,wasActive=false;
+  function isEnabled(){return !media.matches && !document.hidden && (!toggle || toggle.checked);}
+  function resize(){
+    width=window.innerWidth; height=window.innerHeight;
+    const dpr=Math.min(window.devicePixelRatio||1,1.6);
+    canvas.width=Math.round(width*dpr);
+    canvas.height=Math.round(height*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    cell=width<700?25:24;
+    streams=Array.from({length:Math.ceil(width/cell)},(_,i)=>({
+      head:Math.random()*((height/cell)+20),
+      speed:.32+Math.random()*.7,
+      length:7+Math.floor(Math.random()*10),
+      japanese:i%4!==0,
+      tint:i%19===0?'#ff6cda':i%13===0?'#b0ff83':'#63edf5',
+      intensity:.58+Math.random()*.4
+    }));
+    ctx.clearRect(0,0,width,height);
+  }
+  function renderRain(time){
+    requestAnimationFrame(renderRain);
+    const on=isEnabled();
+    if (!on){
+      if(wasActive)ctx.clearRect(0,0,width,height);
+      wasActive=false;last=time;
+      return;
+    }
+    wasActive=true;
+    if (time-last<48)return; // ~20 fps, less battery use on phones
+    const factor=Math.min(1.8,Math.max(.5,(time-last)/48));
+    last=time;
+    // Transparent redraw every frame avoids the black film that hid V8's rain.
+    ctx.clearRect(0,0,width,height);
+    ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.font=`600 ${width<700?15:16}px ui-monospace, monospace`;
+    for (let i=0;i<streams.length;i++){
+      const s=streams[i],x=i*cell+3;
+      for(let trail=0;trail<s.length;trail++){
+        const y=(s.head-trail)*cell;
+        if(y<-cell||y>height+cell)continue;
+        const fade=Math.pow(1-trail/s.length,1.45);
+        ctx.globalAlpha=fade*s.intensity*(trail===0?1:.7);
+        ctx.fillStyle=trail===0?'#daffff':s.tint;
+        ctx.shadowBlur=trail===0?12:0;
+        ctx.shadowColor=s.tint;
+        const letter=(s.japanese?jp:bits)[Math.floor(Math.random()*(s.japanese?jp.length:bits.length))];
+        ctx.fillText(letter,x,y);
+      }
+      s.head+=s.speed*factor;
+      if((s.head-s.length)*cell>height+cell){
+        s.head=-Math.random()*18;
+        s.speed=.32+Math.random()*.7;
+      }
+    }
+    ctx.globalAlpha=1;ctx.shadowBlur=0;
+  }
+  if(toggle){toggle.addEventListener('change',()=>{
+    const enabled=toggle.checked;
+    document.body.dataset.motion=enabled?'on':'off';
+    try{localStorage.setItem('rtc_matrix_enabled',enabled?'true':'false');}catch(_){ }
+    ctx.clearRect(0,0,width,height);
+  });}
+  document.body.dataset.motion=toggle?.checked===false?'off':'on';
+  window.addEventListener('resize',resize,{passive:true});
+  resize();requestAnimationFrame(renderRain);
+}
 function bind(){
   el('tabLoginBtn')?.addEventListener('click', ()=>setAuthTab('login'));
   el('tabSignupBtn')?.addEventListener('click', ()=>setAuthTab('signup'));
