@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#060816" />
+<meta name="description" content="Road to Cyber — plataforma de estudos cyberpunk com login, grupos, trilhas, simulados, laboratórios e progresso." />
+<title>Road to Cyber — Comunidade Online</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#060816;--bg2:#0b1024;--panel:#10172d;--panel2:#131d38;--line:#283454;
+  --text:#edf4ff;--muted:#90a0bf;--cyan:#4df5ff;--mag:#ff4dce;--lime:#a9ff5a;
+  --amber:#ffcf73;--red:#ff7e9c;--blue:#63a6ff;--vio:#8f7cff;--radius:20px;
+  --shadow:0 18px 60px rgba(0,0,0,.35);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(circle at 15% 20%,#13395d55,transparent 28%),radial-gradient(circle at 82% 0%,#5f226e55,transparent 26%),linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text);min-height:100vh;overflow-x:hidden}
+canvas#matrix{position:fixed;inset:0;z-index:-3;opacity:.28}
+body::before{content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;background:
+ linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+ background-size:28px 28px;mask-image:linear-gradient(180deg,rgba(0,0,0,.8),transparent 92%)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle at 20% 20%,#20f3ff12,transparent 18%),radial-gradient(circle at 80% 15%,#ff4dce10,transparent 18%),radial-gradient(circle at 50% 85%,#a9ff5a0d,transparent 20%)}
+a{color:var(--cyan);text-decoration:none}
+a:hover{text-decoration:underline}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+input,select,textarea{width:100%;border-radius:14px;border:1px solid #324168;background:#0f1730;color:var(--text);padding:12px 14px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(77,245,255,.14),0 0 18px rgba(77,245,255,.13)}
+textarea{min-height:96px;resize:vertical}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}
+h1,h2,h3,h4,p{margin-top:0}
+h1{font-size:clamp(2.4rem,6vw,4.8rem);letter-spacing:-.08em;line-height:1.02;margin-bottom:12px}
+h2{font-size:1.35rem;letter-spacing:-.04em;margin-bottom:10px}
+h3{font-size:1.04rem;letter-spacing:-.03em;margin-bottom:8px}
+p{line-height:1.7;color:#d7e2f6}
+small,.small{font-size:12px;color:var(--muted)}
+.mono,.eyebrow,.badge,.pill,.tiny,.toplink{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:800}
+.badge,.pill{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;border:1px solid #325a66;background:#0f2832;color:#c7fdff;font-size:11px;font-weight:800;letter-spacing:.04em}
+.pill.mag{border-color:#76406d;background:#29162a;color:#ffd8fb}.pill.lime{border-color:#476442;background:#192719;color:#d6ffb6}.pill.amber{border-color:#73563a;background:#2f241a;color:#ffe0a6}.pill.red{border-color:#7e4c5f;background:#331e28;color:#ffc0cc}.pill.blue{border-color:#3f5c8f;background:#16233c;color:#cee1ff}
+.btn{border-radius:14px;border:1px solid #386776;background:#173447;color:#ecfeff;padding:11px 16px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:8px;line-height:1.2;transition:.18s transform,.18s box-shadow,.18s background}
+.btn:hover{transform:translateY(-1px);box-shadow:0 0 22px rgba(77,245,255,.18);text-decoration:none}
+.btn.primary{background:linear-gradient(90deg,var(--cyan),#6bafff);color:#071523;border-color:transparent}
+.btn.primary:hover{box-shadow:0 0 28px rgba(77,245,255,.28)}
+.btn.ghost{background:#101830;border-color:#334160;color:#dbe7f8}.btn.mag{background:#311a33;border-color:#733d75;color:#ffd3fb}.btn.red{background:#311b24;border-color:#81485a;color:#ffc5d1}.btn.sm{padding:8px 11px;font-size:12px}.btn.full{width:100%}
+.glow{box-shadow:0 0 0 1px rgba(77,245,255,.2),0 0 28px rgba(77,245,255,.08),var(--shadow)}
+.hidden{display:none !important}
+.center{display:grid;place-items:center}
+.container{width:min(1280px,calc(100% - 32px));margin:0 auto}
+.auth-shell{min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr;gap:24px;padding:28px}
+.hero{position:relative;border:1px solid #244a63;background:linear-gradient(145deg,rgba(14,24,48,.9),rgba(10,16,32,.92));border-radius:32px;padding:38px;overflow:hidden;box-shadow:var(--shadow)}
+.hero::before{content:"";position:absolute;inset:-20% auto auto -10%;width:420px;height:420px;background:radial-gradient(circle,#4df5ff24,transparent 60%);filter:blur(10px)}
+.hero::after{content:"サイバー";position:absolute;right:-26px;top:-8px;font-size:130px;font-weight:900;letter-spacing:-.08em;color:rgba(255,77,206,.08);transform:rotate(-8deg)}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.logo{width:54px;height:54px;border-radius:18px;background:linear-gradient(135deg,var(--cyan),var(--mag));display:grid;place-items:center;color:#06121f;font-weight:1000;box-shadow:0 0 30px rgba(77,245,255,.28)}
+.logo span{font-size:20px;transform:translateY(-1px)}
+.brand h2{margin:0;font-size:1.28rem}.brand p{margin:4px 0 0;color:#94a8c8}
+.hero-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.neo-card,.panel{background:linear-gradient(160deg,rgba(18,25,48,.94),rgba(14,18,36,.96));border:1px solid #283455;border-radius:22px;box-shadow:var(--shadow)}
+.neo-card{padding:18px}
+.kpi{font-size:34px;font-weight:900;letter-spacing:-.06em;margin:10px 0 4px}
+.kpi-sub{font-size:12px;color:var(--muted)}
+.auth-card{padding:24px;align-self:center}
+.auth-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}.auth-tabs button{flex:1;min-width:120px}
+.field-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.notice{padding:13px 14px;border-radius:16px;border:1px solid #345a66;background:#112530;color:#c8f2f4;font-size:13px;line-height:1.6}.notice.warn{background:#33251a;border-color:#6d5036;color:#ffdea8}.notice.info{background:#1a243f;border-color:#3a4a72;color:#d0dbff}.notice.good{background:#1a2f25;border-color:#40624e;color:#cbf2d3}
+.auth-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.matrix-strip{margin-top:20px;display:flex;gap:8px;flex-wrap:wrap}
+.matrix-char{width:30px;height:30px;border-radius:10px;background:rgba(77,245,255,.06);border:1px solid rgba(77,245,255,.12);display:grid;place-items:center;color:#85fdff;box-shadow:0 0 18px rgba(77,245,255,.09)}
+.app-shell{display:grid;grid-template-columns:280px 1fr;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;padding:18px;border-right:1px solid #273454;background:linear-gradient(180deg,rgba(12,18,37,.95),rgba(8,12,24,.95));backdrop-filter:blur(12px)}
+.sidebar .brandblock{padding:10px 10px 20px;border-bottom:1px solid #24324f;margin-bottom:16px}
+.brandline{font-size:28px;font-weight:1000;letter-spacing:-.08em}.brandline em{font-style:normal;color:var(--cyan)}
+.brandsub{font-size:11px;letter-spacing:.16em;color:#93a2bd;text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:8px}
+.nav button{border-radius:14px;border:1px solid transparent;background:transparent;color:#a8b6d1;padding:12px 13px;text-align:left;font-weight:700;display:flex;align-items:center;gap:10px}
+.nav button:hover{background:#152039;color:#fff}
+.nav button.active{border-color:#2b5f70;background:linear-gradient(90deg,#123342,#141f38);color:var(--cyan);box-shadow:0 0 18px rgba(77,245,255,.09)}
+.side-bottom{position:absolute;left:18px;right:18px;bottom:18px;border-top:1px solid #24324f;padding-top:14px}
+.main{min-width:0}
+.topbar{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 24px;border-bottom:1px solid #263453;background:rgba(10,16,32,.8);backdrop-filter:blur(16px)}
+.topbar .title{font-size:13px;color:#9cb0cc}.topbar strong{color:var(--cyan)}
+.top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.content{padding:24px}
+.page{display:none}.page.active{display:block;animation:fadeIn .22s ease}
+@keyframes fadeIn{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}
+.hero-app{padding:28px;overflow:hidden;position:relative;margin-bottom:18px}
+.hero-app::after{content:"ROAD TO CYBER";position:absolute;right:-22px;top:-14px;font-size:110px;font-weight:1000;letter-spacing:-.09em;color:rgba(77,245,255,.06)}
+.hero-app .floating{position:absolute;border-radius:50%;filter:blur(18px);opacity:.55}.hero-app .a{width:140px;height:140px;background:#4df5ff22;right:18%;top:10%}.hero-app .b{width:120px;height:120px;background:#ff4dce18;right:4%;bottom:10%}.hero-app .c{width:100px;height:100px;background:#a9ff5a14;left:45%;bottom:5%}
+.grid{display:grid;gap:16px}.cols4{grid-template-columns:repeat(4,minmax(0,1fr))}.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{padding:20px}
+.stat{padding:20px}.stat .label{font-size:11px;color:#91a4c0;text-transform:uppercase;letter-spacing:.12em;font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.stat .value{font-size:32px;font-weight:950;letter-spacing:-.06em;margin:10px 0 2px}.stat .sub{font-size:12px;color:var(--muted)}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.section-head h2{margin:0}.muted{color:var(--muted)}
+.bar{height:8px;background:#253453;border-radius:999px;overflow:hidden}.bar span{height:100%;display:block;background:linear-gradient(90deg,var(--cyan),var(--mag))}
+.split{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.table{width:100%;border-collapse:collapse}.table th,.table td{padding:12px 10px;border-bottom:1px solid #253250;vertical-align:top}.table th{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#8ea2c0;text-align:left}
+.track-card{display:flex;flex-direction:column;gap:12px;height:100%}
+.track-card ul,.resource-list ul,.tasklist{margin:0;padding-left:18px;color:#d7e2f6}.track-card li,.resource-list li,.tasklist li{margin:6px 0}
+.linklist{display:flex;flex-direction:column;gap:10px}.linkcard{padding:14px;border-radius:16px;border:1px solid #2a3a5d;background:#0f1730;transition:.18s transform,.18s border-color}.linkcard:hover{transform:translateY(-1px);border-color:#3f6687}.linkcard strong{display:block;font-size:14px}.linkcard small{display:block;margin-top:5px}
+.calendar-days{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.day-card{padding:16px;border-radius:18px;border:1px solid #29375b;background:#0f1730}.day-card h4{margin:0 0 7px;font-size:14px}.status-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.status{padding:7px 9px;border-radius:999px;border:1px solid #314159;background:#151e31;color:#b8c8dc;font-size:11px;font-weight:800}.status.done{border-color:#3e6f55;background:#193124;color:#d3ffdd}.status.skip{border-color:#7d5a39;background:#342618;color:#ffe0ae}.status.miss{border-color:#764859;background:#331e28;color:#ffc6d1}
+.member{padding:14px;border:1px solid #2a385c;border-radius:16px;background:#0e162d}.member strong{display:block;font-size:14px}.member .role{font-size:11px;color:#9cb4d2;margin:4px 0 10px}.member .delta{font-size:12px;color:#dce6f8}
+.neon-points{display:flex;gap:8px}.neon-points span{width:9px;height:9px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px currentColor}.neon-points span:nth-child(2){background:var(--mag)}.neon-points span:nth-child(3){background:var(--lime)}
+.kit{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+.footer-note{margin-top:18px;color:#7f90ad;font-size:12px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(4,8,18,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:18px;z-index:60}.modal-backdrop.show{display:flex}.modal{width:min(720px,100%);max-height:90vh;overflow:auto;padding:22px}
+.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+input[type=range]{padding:0;background:transparent;border:0}
+.toplink{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#98b7cb}
+hr.sep{border:0;border-top:1px solid #253250;margin:18px 0}
+@media (max-width:1100px){.auth-shell{grid-template-columns:1fr}.hero-grid,.cols4,.cols3,.cols2,.calendar-days,.field-grid,.kit,.quick-grid{grid-template-columns:1fr 1fr}.app-shell{grid-template-columns:1fr}.sidebar{position:static;height:auto}.side-bottom{position:static;margin-top:16px}.main{min-width:0}}
+@media (max-width:760px){.content,.topbar{padding:16px}.hero,.auth-card,.hero-app,.card,.panel,.neo-card{padding:18px}.hero-grid,.cols4,.cols3,.cols2,.calendar-days,.field-grid,.kit,.quick-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.brandline{font-size:24px}h1{font-size:2.25rem}}
+</style>
+</head>
+<body>
+<canvas id="matrix"></canvas>
+<div id="authView" class="auth-shell container">
+  <section class="hero glow">
+    <div class="brand">
+      <div class="logo"><span>RC</span></div>
+      <div>
+        <h2>Road to Cyber</h2>
+        <p>Study network • cyber, cloud, English, labs and simulated exams.</p>
+      </div>
+    </div>
+    <div class="eyebrow">Jornada colaborativa • Cyberpunk Edition</div>
+    <h1>Uma plataforma de estudos com <span style="color:var(--cyan)">login</span>, <span style="color:var(--mag)">grupos</span> e <span style="color:var(--lime)">trilhas reais</span>.</h1>
+    <p>Feita para pequenos grupos que querem estudar juntos, acompanhar evolução, convidar novas pessoas para a comunidade e criar um caminho progressivo até Cyber, Cloud e inglês profissional.</p>
+    <div class="split">
+      <span class="pill">🔐 tela de login</span>
+      <span class="pill mag">👥 grupos de estudo</span>
+      <span class="pill lime">🧪 simulados + labs</span>
+      <span class="pill amber">📈 catch-up para novos membros</span>
+    </div>
+    <div class="hero-grid">
+      <div class="neo-card">
+        <div class="eyebrow">Sistema</div>
+        <div class="kpi">3x / semana</div>
+        <div class="kpi-sub">Seg • Qua • Sex + sábado opcional</div>
+      </div>
+      <div class="neo-card">
+        <div class="eyebrow">Comunidade</div>
+        <div class="kpi">Grupos</div>
+        <div class="kpi-sub">Crie um grupo, gere convite e acompanhe quem está chegando</div>
+      </div>
+      <div class="neo-card">
+        <div class="eyebrow">Visual</div>
+        <div class="kpi">Matrix JP</div>
+        <div class="kpi-sub">Mais neon, microinterações e fundo animado</div>
+      </div>
+    </div>
+    <div class="matrix-strip" aria-hidden="true">
+      <span class="matrix-char">学</span><span class="matrix-char">習</span><span class="matrix-char">未</span><span class="matrix-char">来</span><span class="matrix-char">雲</span><span class="matrix-char">網</span><span class="matrix-char">守</span><span class="matrix-char">心</span>
+    </div>
+  </section>
+  <section class="panel auth-card glow">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Acesso</div>
+        <h2>Entrar ou criar conta</h2>
+      </div>
+      <div class="neon-points"><span></span><span></span><span></span></div>
+    </div>
+    <div class="auth-tabs">
+      <button class="btn primary" id="tabLoginBtn" type="button">Entrar</button>
+      <button class="btn ghost" id="tabSignupBtn" type="button">Criar conta</button>
+    </div>
+    <div id="authMessage" class="notice info hidden"></div>
+    <form id="loginForm">
+      <div style="margin-bottom:14px">
+        <label>Usuário ou e-mail</label>
+        <input id="loginUser" required placeholder="seu.email@exemplo.com" />
+      </div>
+      <div style="margin-bottom:14px">
+        <label>Senha</label>
+        <input id="loginPass" type="password" required placeholder="Digite sua senha" />
+      </div>
+      <button class="btn primary full" type="submit">Acessar Road to Cyber</button>
+      <div class="auth-footer">
+        <small>Contas reais, com histórico salvo na nuvem.</small>
+        <button class="btn ghost sm" type="button" id="demoSeedBtn">Criar dados de demonstração</button>
+      </div>
+    </form>
+    <form id="signupForm" class="hidden">
+      <div class="field-grid">
+        <div>
+          <label>Nome de exibição</label>
+          <input id="suName" required placeholder="Seu nome" />
+        </div>
+        <div>
+          <label>Usuário</label>
+          <input id="suUser" required placeholder="apelido.cyber" />
+        </div>
+        <div>
+          <label>E-mail (obrigatório)</label>
+          <input id="suEmail" type="email" placeholder="voce@email.com" />
+        </div>
+        <div>
+          <label>Senha</label>
+          <input id="suPass" type="password" required placeholder="Crie uma senha" />
+        </div>
+        <div>
+          <label>Nível atual em TI</label>
+          <select id="suLevel"><option value="0">Zero / iniciante</option><option value="1">Já vi lógica / Python</option><option value="2">Base em redes / sistemas</option><option value="3">Já estudo Cloud / Cyber</option></select>
+        </div>
+        <div>
+          <label>Nível de inglês</label>
+          <select id="suEnglish"><option>Básico</option><option selected>Intermediário</option><option>Intermediário avançado</option><option>Avançado</option></select>
+        </div>
+      </div>
+      <div style="margin:14px 0">
+        <label>Código de convite do grupo (opcional)</label>
+        <input id="suInvite" placeholder="Se um amigo te convidou, cole o código aqui" />
+      </div>
+      <button class="btn primary full" type="submit">Criar usuário</button>
+      <div class="auth-footer"><small>Sem código? Você poderá criar um grupo e compartilhar o convite depois.</small></div>
+    </form>
+    <hr class="sep" />
+    <div class="notice good">Este site usa Supabase Auth e banco de dados online. Acesse de qualquer dispositivo com a mesma conta.</div>
+  </section>
+</div>
+
+<div id="appView" class="app-shell hidden">
+  <aside class="sidebar">
+    <div class="brandblock">
+      <div class="brandline">Road to <em>Cyber</em></div>
+      <div class="brandsub">Study Network • Online Edition</div>
+      <div class="split" style="margin-top:10px"><span class="pill">ログイン</span><span class="pill mag">ネオン</span></div>
+    </div>
+    <nav class="nav" id="navButtons">
+      <button class="active" data-page="dashboard">⚡ Dashboard</button>
+      <button data-page="schedule">🗓️ Rotina</button>
+      <button data-page="tracks">🧭 Trilhas</button>
+      <button data-page="resources">🧪 Simulados & Labs</button>
+      <button data-page="community">👥 Comunidade</button>
+      <button data-page="settings">⚙️ Configurações</button>
+    </nav>
+    <div class="side-bottom">
+      <div class="small">Conectado como</div>
+      <strong id="sideUserName">Usuário</strong>
+      <div class="small" id="sideUserMeta">Grupo independente</div>
+      <div class="split" style="margin-top:10px">
+        <button class="btn ghost sm" id="openQuickCreate" type="button">Criar usuário</button>
+        <button class="btn red sm" id="logoutBtn" type="button">Sair</button>
+      </div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div class="title">Road to Cyber / <strong id="crumbTitle">Dashboard</strong></div>
+      <div class="top-actions">
+        <span class="toplink" id="welcomeUser">Bem-vindo</span>
+        <button class="btn ghost sm" id="backupBtn" type="button">Exportar backup</button>
+        <label class="btn ghost sm" for="restoreFile" style="cursor:pointer">Importar backup</label>
+        <input id="restoreFile" type="file" accept="application/json" class="hidden" />
+      </div>
+    </div>
+    <div class="content">
+      <section id="dashboard" class="page active">
+        <div class="panel hero-app glow">
+          <div class="floating a"></div><div class="floating b"></div><div class="floating c"></div>
+          <div class="eyebrow">Cyber • Cloud • English</div>
+          <h1>Bem-vindo ao <span style="color:var(--cyan)">Road to Cyber</span>.</h1>
+          <p>Acompanhe sua evolução em Cyber, Cloud e inglês. Estude em grupos, convide colegas, compare etapas de aprendizado e registre provas e laboratórios em sua conta online.</p>
+          <div class="split">
+            <span class="pill">1h seg / qua / sex</span>
+            <span class="pill mag">sábado opcional</span>
+            <span class="pill lime" id="groupBadge">sem grupo</span>
+          </div>
+        </div>
+        <div class="grid cols4" id="dashboardStats"></div>
+        <div class="grid cols2" style="margin-top:16px">
+          <div class="panel card glow">
+            <div class="section-head"><div><div class="eyebrow">Sua fase</div><h2>Onde você está na jornada</h2></div><span class="pill blue" id="currentStagePill">Stage 0</span></div>
+            <p id="stageSummary">Defina seu nível, entre em um grupo e acompanhe sua aproximação do restante do squad.</p>
+            <div class="bar"><span id="userProgressBar" style="width:8%"></span></div>
+            <div class="small" style="margin-top:8px" id="catchUpText">Sem necessidade de catch-up ainda.</div>
+            <hr class="sep" />
+            <h3>Próximas ações recomendadas</h3>
+            <ul class="tasklist" id="nextTasks"></ul>
+          </div>
+          <div class="panel card glow">
+            <div class="section-head"><div><div class="eyebrow">Convites</div><h2>Conectar mais pessoas</h2></div><button class="btn sm primary" id="copyInviteBtn" type="button">Copiar convite</button></div>
+            <div id="inviteBox" class="notice info">Crie ou entre em um grupo para gerar seu código de convite.</div>
+            <p class="small">Fluxo pensado para comunidade: você e um amigo avançam, convidam outra pessoa e ela recebe um caminho de aproximação até chegar na fase do grupo.</p>
+            <div class="split"><button class="btn ghost sm" id="openGroupModal">Criar/Entrar em grupo</button><button class="btn mag sm" id="advanceStageBtn">Avançar fase do grupo</button></div>
+          </div>
+        </div>
+      </section>
+      <section id="schedule" class="page">
+        <div class="section-head"><div><div class="eyebrow">Rotina</div><h2>Sua semana de estudos</h2></div><span class="pill">1 hora</span></div>
+        <div class="grid cols2">
+          <div class="panel card glow">
+            <div class="calendar-days" id="weeklyCards"></div>
+          </div>
+          <div class="panel card glow">
+            <div class="section-head"><div><h2>Registrar sessão</h2><p class="small">Marque o que fez na semana atual para alimentar os indicadores.</p></div></div>
+            <form id="sessionForm">
+              <div class="field-grid">
+                <div><label>Dia</label><select id="sessionDay"><option>Segunda</option><option>Quarta</option><option>Sexta</option><option>Sábado</option></select></div>
+                <div><label>Status</label><select id="sessionStatus"><option value="done">Concluí</option><option value="miss">Não fiz</option><option value="skip">Dispensado</option></select></div>
+                <div><label>Foco principal</label><select id="sessionFocus"><option>Cyber / Cloud</option><option>Inglês</option><option>Revisão / Laboratório</option><option>Encontro com grupo</option></select></div>
+                <div><label>Duração</label><select id="sessionDuration"><option>60 min</option><option>45 min</option><option>30 min</option><option>15 min</option></select></div>
+              </div>
+              <div style="margin-top:14px"><label>Notas rápidas</label><textarea id="sessionNotes" placeholder="O que você estudou? O que ficou travado?"></textarea></div>
+              <div class="split" style="margin-top:14px"><button class="btn primary" type="submit">Salvar sessão</button><button class="btn ghost" type="button" id="fillWeekPlan">Preencher plano sugerido</button></div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <section id="tracks" class="page">
+        <div class="section-head"><div><div class="eyebrow">Trilhas</div><h2>Caminho principal de estudo</h2></div><span class="pill mag">Udemy + prática</span></div>
+        <div class="grid cols3" id="trackCards"></div>
+      </section>
+      <section id="resources" class="page">
+        <div class="section-head"><div><div class="eyebrow">Biblioteca</div><h2>Simulados, provas e laboratórios</h2></div><span class="pill lime">Estudo guiado</span></div>
+        <div class="kit">
+          <div class="panel card glow">
+            <h3>Simulados e avaliações recomendadas</h3>
+            <div class="linklist" id="examLinks"></div>
+          </div>
+          <div class="panel card glow">
+            <h3>Labs legais para praticar</h3>
+            <div class="linklist" id="labLinks"></div>
+          </div>
+        </div>
+        <div class="grid cols2" style="margin-top:16px">
+          <div class="panel card glow">
+            <h3>Provas periódicas do Road to Cyber</h3>
+            <table class="table"><thead><tr><th>Ciclo</th><th>Quando</th><th>Base</th><th>Ação</th></tr></thead><tbody id="internalExamTable"></tbody></table>
+          </div>
+          <div class="panel card glow">
+            <h3>Registrar nota de simulado</h3>
+            <form id="scoreForm">
+              <div class="field-grid">
+                <div><label>Recurso</label><select id="scoreResource"></select></div>
+                <div><label>Nota (%)</label><input id="scoreValue" type="number" min="0" max="100" placeholder="85" /></div>
+              </div>
+              <div style="margin-top:14px"><label>Observações</label><textarea id="scoreNotes" placeholder="Onde fui bem? Onde preciso reforçar?"></textarea></div>
+              <div class="split" style="margin-top:14px"><button class="btn primary" type="submit">Salvar resultado</button></div>
+            </form>
+            <hr class="sep" />
+            <div id="scoreHistory"></div>
+          </div>
+        </div>
+      </section>
+      <section id="community" class="page">
+        <div class="section-head"><div><div class="eyebrow">Comunidade</div><h2>Grupo de estudos</h2></div><span class="pill">Convites & catch-up</span></div>
+        <div class="grid cols2">
+          <div class="panel card glow">
+            <h3>Seu grupo atual</h3>
+            <div id="groupSummaryBox" class="notice info">Você ainda não está em um grupo.</div>
+            <div class="split" style="margin-top:14px"><button class="btn primary" type="button" id="communityCreateGroup">Criar grupo</button><button class="btn ghost" type="button" id="communityJoinGroup">Entrar com convite</button></div>
+            <hr class="sep" />
+            <h3>Membros</h3>
+            <div class="grid" id="memberList"></div>
+          </div>
+          <div class="panel card glow">
+            <h3>Modo comunidade</h3>
+            <p>Quando um novo amigo entra no mesmo grupo, a plataforma compara a fase dele com a fase-alvo do grupo e mostra um percurso de aproximação.</p>
+            <div id="catchupBox" class="notice good">Sem diferença de fase no momento.</div>
+            <hr class="sep" />
+            <h3>Convidar novo membro</h3>
+            <div id="quickCreateForm" class="notice info">Envie um link de convite para que cada colega crie sua própria conta com segurança.</div>
+          </div>
+        </div>
+      </section>
+      <section id="settings" class="page">
+        <div class="section-head"><div><div class="eyebrow">Configurações</div><h2>Marca, visual e dados</h2></div><span class="pill red">Administração leve</span></div>
+        <div class="grid cols2">
+          <div class="panel card glow">
+            <h3>Perfil atual</h3>
+            <div class="field-grid">
+              <div><label>Nome</label><input id="profileName" /></div>
+              <div><label>Usuário</label><input id="profileUser" /></div>
+              <div><label>Inglês</label><select id="profileEnglish"><option>Básico</option><option>Intermediário</option><option>Intermediário avançado</option><option>Avançado</option></select></div>
+              <div><label>Fase atual</label><select id="profileStage"><option value="0">Stage 0</option><option value="1">Stage 1</option><option value="2">Stage 2</option><option value="3">Stage 3</option><option value="4">Stage 4</option></select></div>
+            </div>
+            <div class="split" style="margin-top:14px"><button class="btn primary" id="saveProfileBtn" type="button">Salvar perfil</button></div>
+            <div class="footer-note">Seus dados são salvos no Supabase. Faça backups pessoais regularmente.</div>
+          </div>
+          <div class="panel card glow">
+            <h3>Sobre esta versão</h3>
+            <ul class="tasklist">
+              <li>Nome do projeto alterado para <strong>Road to Cyber</strong>.</li>
+              <li>Perfis individuais, sem nomes fixos na interface.</li>
+              <li>Tela de login/cadastro antes do restante do conteúdo.</li>
+              <li>Grupos, convites e catch-up para novos membros.</li>
+              <li>Mais neon, fundo matrix em japonês e microinterações.</li>
+            </ul>
+            <div class="notice good">Supabase Auth + banco de dados online. Cada participante controla sua própria conta.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div id="groupModalWrap" class="modal-backdrop">
+  <div class="panel modal glow">
+    <div class="section-head"><div><div class="eyebrow">Grupo</div><h2>Criar ou entrar em grupo</h2></div><button class="btn ghost sm" id="closeGroupModal">Fechar</button></div>
+    <div class="grid cols2">
+      <form id="createGroupForm" class="panel card">
+        <h3>Criar grupo</h3>
+        <div><label>Nome do grupo</label><input id="groupName" required placeholder="Squad Cloud / Cyber" /></div>
+        <div style="margin-top:12px"><label>Fase-alvo inicial do grupo</label><select id="groupTarget"><option value="0">Stage 0</option><option value="1">Stage 1</option><option value="2">Stage 2</option><option value="3">Stage 3</option></select></div>
+        <div class="split" style="margin-top:14px"><button class="btn primary" type="submit">Criar grupo</button></div>
+      </form>
+      <form id="joinGroupForm" class="panel card">
+        <h3>Entrar com convite</h3>
+        <div><label>Código do grupo</label><input id="joinCode" required placeholder="ex.: RTC-A1B2C3" /></div>
+        <div class="split" style="margin-top:14px"><button class="btn mag" type="submit">Entrar no grupo</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="./config.js" defer></script>
+<script src="./app.js" defer></script>
+</body>
+</html>
