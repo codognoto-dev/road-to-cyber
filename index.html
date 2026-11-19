@@ -4,8 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#060816" />
-<meta name="description" content="Road to Cyber — plataforma de estudos cyberpunk com login, grupos, trilhas, simulados, laboratórios e progresso." />
+<meta name="description" content="Road to Cyber — comunidade de aprendizado em Cyber, Cloud e inglês, com trilhas, laboratório e evolução compartilhada." />
 <title>Road to Cyber — Comunidade Online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
 :root{
   color-scheme:dark;
@@ -114,6 +117,143 @@ input[type=range]{padding:0;background:transparent;border:0}
 hr.sep{border:0;border-top:1px solid #253250;margin:18px 0}
 @media (max-width:1100px){.auth-shell{grid-template-columns:1fr}.hero-grid,.cols4,.cols3,.cols2,.calendar-days,.field-grid,.kit,.quick-grid{grid-template-columns:1fr 1fr}.app-shell{grid-template-columns:1fr}.sidebar{position:static;height:auto}.side-bottom{position:static;margin-top:16px}.main{min-width:0}}
 @media (max-width:760px){.content,.topbar{padding:16px}.hero,.auth-card,.hero-app,.card,.panel,.neo-card{padding:18px}.hero-grid,.cols4,.cols3,.cols2,.calendar-days,.field-grid,.kit,.quick-grid{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.brandline{font-size:24px}h1{font-size:2.25rem}}
+
+/* ── Road to Cyber · NEON REVISION (V6) ── */
+:root{
+  --bg:#050a15;--bg2:#081022;--panel:#111c2d;--panel2:#142336;--line:#29405a;
+  --text:#f2f8ff;--muted:#a5b7d0;--cyan:#48eff4;--mag:#f55de0;--lime:#b8ff79;
+  --shadow:0 18px 54px rgba(0,4,15,.38);
+  font-family:"Manrope","Segoe UI",Arial,sans-serif;
+}
+body{font-family:"Manrope","Segoe UI",Arial,sans-serif;background:radial-gradient(ellipse at 18% 5%,#103e544d 0%,transparent 40%),radial-gradient(ellipse at 87% 28%,#2e1e5640 0%,transparent 34%),linear-gradient(120deg,#060b17,#091324 57%,#050b14);isolation:isolate}
+canvas#matrix{position:fixed;inset:0;z-index:0;opacity:.74;pointer-events:none;mix-blend-mode:screen;mask-image:linear-gradient(90deg,#000 0%,#000b 55%,#000d 100%)}
+body::before{z-index:0;opacity:.85;mask-image:none;background-size:52px 52px;background-image:linear-gradient(#31a5d60d 1px,transparent 1px),linear-gradient(90deg,#31a5d60d 1px,transparent 1px)}
+body::after{z-index:0;background:radial-gradient(circle at 12% 32%,#25e1eb13 0%,transparent 23%),radial-gradient(circle at 82% 6%,#ef3acc11 0%,transparent 25%)}
+#authView,#appView{position:relative;z-index:1}
+#groupModalWrap,.modal-backdrop{z-index:60}
+h1,h2,h3,h4,.brandline,.kpi,.stat .value{font-family:"Space Grotesk","Manrope","Segoe UI",Arial,sans-serif}
+h1{font-weight:700;letter-spacing:-.055em;line-height:1.07}
+h2{font-size:1.43rem;letter-spacing:-.025em;font-weight:700}
+h3{font-size:1.1rem;letter-spacing:-.015em;font-weight:650}
+.eyebrow,.toplink,.brandsub,.stat .label,.badge,.pill,.topbar .title,.kpi-sub{font-family:"Manrope","Segoe UI",Arial,sans-serif!important;letter-spacing:.025em;font-weight:700;text-transform:none}
+.eyebrow{font-size:12px;letter-spacing:.07em!important}
+.brandsub{font-size:11px;letter-spacing:.025em!important}
+.stat .label{font-size:12px;letter-spacing:.015em!important}
+.mono,code{font-family:Consolas,monospace}
+small,.small{font-size:12.5px;line-height:1.65}
+p{font-size:14px;line-height:1.75}
+.btn{font-family:inherit;font-size:13px;font-weight:750;transition:transform .23s cubic-bezier(.16,1,.3,1),background-color .23s ease,box-shadow .23s ease,border-color .23s ease;outline-offset:3px}
+.btn:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 8px 24px #0aeeff24}
+.btn:active:not(:disabled){transform:translateY(0) scale(.98)}
+.btn:focus-visible,.nav button:focus-visible,.profile-chip:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.panel,.neo-card,.day-card,.linkcard,.member{
+  background:linear-gradient(140deg,rgba(15,28,46,.89),rgba(13,22,38,.93));
+  border-color:rgba(96,154,190,.22);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  transition:transform .32s cubic-bezier(.2,.8,.2,1),border-color .3s ease,box-shadow .3s ease,background-color .3s ease;
+}
+.glow{box-shadow:0 0 0 1px #4df5ff08,0 12px 38px #03091455}
+.card:hover,.stat:hover,.neo-card:hover,.day-card:hover,.member:hover{
+  transform:translateY(-4px);border-color:rgba(79,229,242,.48);
+  box-shadow:0 12px 35px #0007,0 0 24px rgba(77,245,255,.075);
+}
+.hero{background:radial-gradient(ellipse at 5% 95%,#0b7b942a,transparent 45%),linear-gradient(145deg,rgba(9,23,40,.83),rgba(10,16,33,.94));border-color:#26627a;box-shadow:0 0 62px #03cbe60c,0 25px 70px #0008}
+.hero::after{color:rgba(105,234,249,.1);font-family:system-ui,sans-serif}
+.hero-app{background:radial-gradient(ellipse at 78% 10%,#34346c66,transparent 42%),linear-gradient(120deg,rgba(13,31,47,.9),rgba(11,21,39,.94));border:1px solid #295a71;isolation:isolate;box-shadow:inset 0 1px #ffffff0b,0 14px 38px #0006}
+.hero-app::after{font-size:clamp(55px,8vw,112px);right:-6px;top:10px;color:#41e7ea0a}
+.hero-app>*:not(.floating){position:relative;z-index:1}
+.hero-app .floating{animation:orbFloat 8s ease-in-out infinite alternate;filter:blur(22px);opacity:.9}
+.hero-app .floating.b{animation-delay:-3s;animation-duration:11s}
+.hero-app .floating.c{animation-delay:-6s;animation-duration:9s}
+@keyframes orbFloat{from{transform:translate3d(-10px,4px,0) scale(.93)}to{transform:translate3d(18px,-20px,0) scale(1.15)}}
+.logo{box-shadow:0 0 15px #48eff44b,0 0 34px #eb6fe32b;animation:logoGlow 5s ease-in-out infinite alternate}
+@keyframes logoGlow{to{box-shadow:0 0 22px #48eff46a,0 0 38px #eb6fe350}}
+.nav button{transition:color .22s ease,background-color .22s ease,transform .22s ease,box-shadow .22s ease}
+.nav button:hover{transform:translateX(4px);background:#192945}
+.nav button.active{background:linear-gradient(90deg,#103e49,#1a2644);box-shadow:inset 3px 0 var(--cyan),0 0 21px #48eff413}
+.sidebar{background:linear-gradient(180deg,rgba(9,22,37,.93),rgba(8,14,27,.96));box-shadow:5px 0 25px #03091148}
+.topbar{background:rgba(7,17,32,.82);border-bottom:1px solid #244358;min-height:74px}
+.topbar .title{display:flex;align-items:center;gap:9px;font-size:14px;color:#cedbec}
+.topbar .title strong{font-weight:760;color:#e7ffff}
+.breadcrumb-root{color:#6eeaf2;font-weight:780}.breadcrumb-divider{color:#658194}
+.top-actions{gap:14px}
+.connection-pill{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:650;color:#a8bcd2}
+.signal-dot{display:inline-block;flex:none;width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 4px #b8ff7919,0 0 14px #b8ff7990;animation:pulseDot 2.8s ease-in-out infinite}
+@keyframes pulseDot{50%{box-shadow:0 0 0 7px #b8ff7906,0 0 18px #b8ff79b0}}
+.profile-chip{display:inline-flex;align-items:center;gap:11px;border:1px solid #365569;background:linear-gradient(150deg,#12283c,#0d1a30);color:#e7f8ff;padding:7px 13px 7px 7px;border-radius:999px;cursor:pointer;font-size:12px;font-weight:750;transition:transform .23s ease,border-color .23s ease,box-shadow .23s ease}
+.profile-chip:hover{transform:translateY(-2px);border-color:#53c9d7;box-shadow:0 0 18px #24e8f41b}
+.profile-symbol{display:grid;place-items:center;width:30px;height:30px;background:linear-gradient(135deg,#30dce6,#8477ee);color:#062232;border-radius:50%;font-size:19px}
+.profile-chevron{font-size:23px;font-weight:400;color:#7df1f5;line-height:1}
+.hero-status{display:inline-flex;align-items:center;gap:10px;border:1px solid #2d6970;background:rgba(18,64,69,.6);padding:7px 13px;border-radius:999px;color:#b9fcf6;font-size:11px;font-weight:850;letter-spacing:.065em;margin-bottom:20px}
+.hero-status .signal-dot{width:6px;height:6px}
+.pill{font-size:11px;letter-spacing:0;box-shadow:inset 0 1px #ffffff0a}
+.stat .value{font-weight:700}
+.bar>span,.bar span{transition:width 1s cubic-bezier(.18,.83,.3,1);box-shadow:0 0 14px #48eff44a}
+.linkcard{border-color:#2b455f}
+.linkcard:hover{transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 8px 22px #0006,0 0 12px #48eff420;text-decoration:none}
+.linkcard strong{font-size:13.5px;line-height:1.5}
+.auth-tabs .btn{min-height:42px}
+input,select,textarea{background:rgba(12,25,45,.95);border-color:#3a526b;font-family:inherit;font-size:14px;transition:border-color .2s ease,box-shadow .2s ease}
+input:focus,select:focus,textarea:focus{border-color:#53e9ed;box-shadow:0 0 0 3px #53e9ed12,0 0 22px #53e9ed18}
+label{font-size:12px;color:#a9bbd4}
+.notice{line-height:1.7}
+.matrix-strip{gap:9px}.matrix-char{font-size:14px;transition:transform .3s ease,border-color .3s ease}.matrix-char:hover{transform:translateY(-3px) rotate(5deg);border-color:var(--cyan)}
+.data-tools{margin-top:20px;border:1px solid #304763;border-radius:15px;background:rgba(10,24,42,.7);padding:14px 15px}
+.data-tools summary{display:flex;align-items:center;justify-content:space-between;gap:8px;list-style:none;cursor:pointer;font-size:13px;font-weight:700;color:#d4e4f5}
+.data-tools summary::-webkit-details-marker{display:none}
+.data-tools[open] summary span{transform:rotate(180deg)}
+.data-tools summary span{transition:transform .25s ease}
+.data-tools p{margin:15px 0 12px}
+.import-label{display:inline-flex;cursor:pointer;margin:0;color:#dbe7f8}
+.motion-row{display:flex;gap:12px;justify-content:space-between;align-items:center;border:1px solid #304763;padding:13px;border-radius:14px;background:#101e32;margin:0;cursor:pointer}
+.motion-row strong{font-size:13px;color:#e9f5ff;display:block;font-weight:740}
+.motion-row small{display:block;margin-top:4px;max-width:400px}
+.motion-row input{appearance:none;position:relative;flex:none;width:44px;height:26px;background:#2f4660;border:1px solid #52718a;border-radius:999px;padding:0;cursor:pointer;transition:background .2s}
+.motion-row input::before{content:"";position:absolute;top:3px;left:3px;background:white;border-radius:50%;height:18px;width:18px;transition:transform .2s}
+.motion-row input:checked{background:#0a929b;border-color:#5af6f4}
+.motion-row input:checked::before{transform:translateX(18px)}
+body[data-motion="off"] canvas#matrix{opacity:0}
+.page.active{animation:pageReveal .35s cubic-bezier(.16,1,.3,1)}
+@keyframes pageReveal{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1100px){
+ .app-shell{grid-template-columns:minmax(0,1fr);width:100%}
+ .sidebar{position:sticky;top:0;z-index:20;height:auto;padding:10px 16px 8px;border-right:0;border-bottom:1px solid #2a465f;min-width:0;width:100%;overflow:hidden}
+ .main{width:100%;min-width:0}
+ .sidebar .brandblock{padding:2px 2px 10px;margin-bottom:6px;display:flex;align-items:center;gap:12px;justify-content:space-between;border-bottom:0}
+ .sidebar .brandline{font-size:20px}.sidebar .brandsub{display:none}.sidebar .brandblock .split{display:none}
+ .nav{flex-direction:row;gap:6px;overflow-x:auto;scrollbar-width:thin;padding:0 1px 4px;min-width:0;max-width:100%}
+ .nav button{flex:none;padding:9px 12px;border-radius:999px;font-size:12px}
+ .nav button.active{box-shadow:inset 0 -2px var(--cyan),0 0 12px #48eff415}
+ .nav button:hover{transform:none}
+ .side-bottom{display:none}
+ .topbar{position:relative;min-height:58px;padding:10px 18px}
+ .auth-shell{padding:18px}
+}
+@media(max-width:760px){
+ .auth-shell{padding:10px 12px 28px;gap:12px}
+ .hero{padding:24px 22px}
+ .hero-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .hero-grid .neo-card{padding:12px 10px}.hero-grid .kpi{font-size:21px}.hero-grid .kpi-sub{font-size:10px}
+ .sidebar{padding:8px 12px 6px}
+ .content{padding:16px 12px 44px}
+ .topbar{padding:11px 13px;flex-direction:row;align-items:center;gap:8px}
+ .connection-pill{display:none}
+ .topbar .title{font-size:12px;gap:6px}
+ .profile-chip{font-size:0;gap:0;padding:5px}
+ .profile-chip .profile-symbol{width:30px;height:30px;font-size:19px}
+ .profile-chip .profile-chevron{display:none}
+ h1{font-size:clamp(2.1rem,9vw,2.8rem)}
+ .hero-app{padding:24px 20px}
+ .hero-app::after{font-size:64px}
+ .stat{padding:17px}.stat .value{font-size:28px}
+ .grid.cols4{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .grid.cols2,.grid.cols3,.calendar-days,.field-grid,.kit,.quick-grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+ canvas#matrix{opacity:0}
+}
+
 </style>
 </head>
 <body>
@@ -251,19 +391,17 @@ hr.sep{border:0;border-top:1px solid #253250;margin:18px 0}
   </aside>
   <main class="main">
     <div class="topbar">
-      <div class="title">Road to Cyber / <strong id="crumbTitle">Dashboard</strong></div>
+      <div class="title"><span class="breadcrumb-root">Road to Cyber</span><span class="breadcrumb-divider">/</span><strong id="crumbTitle">Dashboard</strong></div>
       <div class="top-actions">
-        <span class="toplink" id="welcomeUser">Bem-vindo</span>
-        <button class="btn ghost sm" id="backupBtn" type="button">Exportar backup</button>
-        <label class="btn ghost sm" for="restoreFile" style="cursor:pointer">Importar backup</label>
-        <input id="restoreFile" type="file" accept="application/json" class="hidden" />
+        <span class="connection-pill"><span class="signal-dot"></span> Seu espaço de estudos</span>
+        <button class="profile-chip" id="profileShortcut" type="button" aria-label="Abrir configurações do perfil"><span class="profile-symbol" aria-hidden="true">◈</span><span>Meu perfil</span><span class="profile-chevron" aria-hidden="true">›</span></button>
       </div>
     </div>
     <div class="content">
       <section id="dashboard" class="page active">
         <div class="panel hero-app glow">
           <div class="floating a"></div><div class="floating b"></div><div class="floating c"></div>
-          <div class="eyebrow">Cyber • Cloud • English</div>
+          <div class="hero-status"><span class="signal-dot"></span> SUA BASE DE ESTUDOS</div>
           <h1>Bem-vindo ao <span style="color:var(--cyan)">Road to Cyber</span>.</h1>
           <p>Acompanhe sua evolução em Cyber, Cloud e inglês. Estude em grupos, convide colegas, compare etapas de aprendizado e registre provas e laboratórios em sua conta online.</p>
           <div class="split">
@@ -380,8 +518,8 @@ hr.sep{border:0;border-top:1px solid #253250;margin:18px 0}
               <div><label>Inglês</label><select id="profileEnglish"><option>Básico</option><option>Intermediário</option><option>Intermediário avançado</option><option>Avançado</option></select></div>
               <div><label>Fase atual</label><select id="profileStage"><option value="0">Stage 0</option><option value="1">Stage 1</option><option value="2">Stage 2</option><option value="3">Stage 3</option><option value="4">Stage 4</option></select></div>
             </div>
-            <div class="split" style="margin-top:14px"><button class="btn primary" id="saveProfileBtn" type="button">Salvar perfil</button></div>
-            <div class="footer-note">Seus dados são salvos no Supabase. Faça backups pessoais regularmente.</div>
+            <div class="split" style="margin-top:14px"><button class="btn primary" id="saveProfileBtn" type="button">Salvar perfil</button><button class="btn red sm" id="logoutMobileBtn" type="button">Sair da conta</button></div>
+            <div class="footer-note">Seu progresso continua salvo no Supabase. As opções de backup estão em Ferramentas de dados, abaixo.</div>
           </div>
           <div class="panel card glow">
             <h3>Sobre esta versão</h3>
@@ -393,6 +531,13 @@ hr.sep{border:0;border-top:1px solid #253250;margin:18px 0}
               <li>Mais neon, fundo matrix em japonês e microinterações.</li>
             </ul>
             <div class="notice good">Supabase Auth + banco de dados online. Cada participante controla sua própria conta.</div>
+            <hr class="sep" />
+            <div class="section-head" style="margin-bottom:9px"><h3 style="margin:0">Visual e acessibilidade</h3><span class="pill mag">NEON / JP</span></div>
+            <label class="motion-row" for="motionToggle"><span><strong>Chuva digital japonesa</strong><small>Katakana e binário em movimento; você pode desativar quando quiser.</small></span><input id="motionToggle" type="checkbox" checked /></label>
+            <details class="data-tools"><summary>Ferramentas de dados e backup <span aria-hidden="true">⌄</span></summary>
+              <p class="small">Seus registros já são salvos online. Use a exportação para guardar uma cópia pessoal; importar um backup pode criar registros duplicados.</p>
+              <div class="split"><button class="btn ghost sm" id="backupBtn" type="button">Exportar meus dados</button><label class="btn ghost sm import-label" for="restoreFile">Importar backup</label><input id="restoreFile" type="file" accept="application/json" class="hidden" /></div>
+            </details>
           </div>
         </div>
       </section>

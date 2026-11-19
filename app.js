@@ -88,7 +88,7 @@ async function refresh(){if(!me || refreshing)return;refreshing=true;try{
 }catch(e){console.error(e);toast('Falha ao carregar dados: '+errorText(e));}finally{refreshing=false;}}
 function groupStatus(){if(!group)return 'sem grupo';return group.name;}
 function stageData(n){return TRACKS.find(x=>x.stage===n)||TRACKS[0];}
-function render(){if(!me||!profile)return;showApp();$('sideUserName').textContent=profile.display_name;$('sideUserMeta').textContent=group?group.name+' • Stage '+profile.stage:'Sem grupo • Stage '+profile.stage;$('welcomeUser').textContent='Olá, '+profile.display_name;
+function render(){if(!me||!profile)return;showApp();$('sideUserName').textContent=profile.display_name;$('sideUserMeta').textContent=group?group.name+' • Stage '+profile.stage:'Sem grupo • Stage '+profile.stage;
   const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b.score,0)/scores.length):0;
   $('dashboardStats').innerHTML=[['Sessões registradas',sessions.length,'histórico pessoal'],['Concluídas',sessions.filter(s=>s.status==='done').length,'sessões feitas'],['Média de simulados',avg+'%','resultados registrados'],['Pessoas no grupo',roster.length,groupStatus()]].map(([label,value,sub])=>`<div class="panel stat glow"><div class="label">${esc(label)}</div><div class="value">${esc(value)}</div><div class="sub">${esc(sub)}</div></div>`).join('');
   $('groupBadge').textContent=groupStatus();$('currentStagePill').textContent='Stage '+profile.stage;$('stageSummary').textContent=stageData(profile.stage).name;$('userProgressBar').style.width=Math.min(100,Math.max(6,Math.round((profile.stage+1)*23)))+'%';
@@ -124,6 +124,8 @@ function bind(){
  $('resetForm').onsubmit=async e=>{e.preventDefault();const pass=$('resetPassword').value;if(pass.length<6)return message('Use no mínimo 6 caracteres.','warn');const {error}=await sb.auth.updateUser({password:pass});if(error)return message(errorText(error),'warn');$('resetForm').classList.add('hidden');resetMode=false;message('Senha atualizada. Você já pode entrar novamente.','good');await sb.auth.signOut();};
  document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===b.dataset.page));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x===b));$('crumbTitle').textContent=b.textContent.trim();});
  $('logoutBtn').onclick=async()=>{await sb.auth.signOut();me=null;showLogin();};
+ $('profileShortcut').onclick=()=>document.querySelector('[data-page="settings"]').click();
+ $('logoutMobileBtn').onclick=()=>$('logoutBtn').click();
  const openModal=()=> $('groupModalWrap').classList.add('show');
  $('openGroupModal').onclick=openModal;$('communityCreateGroup').onclick=openModal;$('communityJoinGroup').onclick=openModal;$('closeGroupModal').onclick=()=>$('groupModalWrap').classList.remove('show');
  $('createGroupForm').onsubmit=async e=>{e.preventDefault();try{const res=await sb.rpc('rtc_create_group',{p_name:$('groupName').value.trim(),p_target_stage:+$('groupTarget').value});await handleResult(res,'Grupo criado! Agora compartilhe o convite.');$('groupModalWrap').classList.remove('show');}catch(err){toast(errorText(err));}};
@@ -152,7 +154,55 @@ const QUESTIONS=[
   {q:'Qual ação é mais segura para testar um script de Cyber?',opts:['Usar servidores de terceiros sem permissão','Usar ambiente pessoal/autorizado e dados fictícios','Pegar dados reais de colegas','Desativar logs'],a:1}
 ];
 function showQuiz(cycle){const overlay=document.createElement('div');overlay.className='modal-backdrop show';const count=cycle<2?5:7;const qs=QUESTIONS.slice(0,count);overlay.innerHTML=`<div class="panel modal glow"><div class="section-head"><h2>Simulado ${cycle+1} — Road to Cyber</h2><button type="button" class="btn ghost sm" id="quizClose">Fechar</button></div><p class="small">Questões autorais de revisão, não equivalentes a certificações oficiais.</p><form id="quizForm">${qs.map((q,i)=>`<div class="neo-card" style="margin:12px 0"><strong>${i+1}. ${esc(q.q)}</strong>${q.opts.map((o,j)=>`<label style="margin-top:9px"><input style="width:auto;margin-right:7px" type="radio" name="question${i}" value="${j}" required />${esc(o)}</label>`).join('')}</div>`).join('')}<button class="btn primary full" type="submit">Corrigir e registrar nota</button></form></div>`;document.body.append(overlay);overlay.querySelector('#quizClose').onclick=()=>overlay.remove();overlay.querySelector('#quizForm').onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target);let right=0;qs.forEach((q,i)=>{if(Number(fd.get('question'+i))===q.a)right++;});const score=Math.round(right/qs.length*100);const res=await sb.from('exam_scores').insert({user_id:me.id,resource:EXAMS[cycle]?.name||'Road to Cyber',score,notes:`Simulado autoral: ${right}/${qs.length} acertos`});if(res.error)return toast(errorText(res.error));overlay.remove();toast(`Você acertou ${right}/${qs.length} e tirou ${score}%. Nota salva.`);refresh();};}
-function startMatrix(){const canvas=$('matrix');if(!canvas)return;const ctx=canvas.getContext('2d');const glyphs='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789学習未来雲網守心'.split('');let drops=[];function resize(){canvas.width=innerWidth*devicePixelRatio;canvas.height=innerHeight*devicePixelRatio;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);drops=Array(Math.ceil(innerWidth/18)).fill(1);}resize();addEventListener('resize',resize);if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;setInterval(()=>{ctx.fillStyle='rgba(6,8,22,.08)';ctx.fillRect(0,0,innerWidth,innerHeight);ctx.font='16px monospace';drops.forEach((y,i)=>{ctx.fillStyle=i%7===0?'#ff4dce':i%5===0?'#a9ff5a':'#4df5ff';ctx.fillText(glyphs[Math.floor(Math.random()*glyphs.length)],i*18,y*18);if(y*18>innerHeight&&Math.random()>.97)drops[i]=0;else drops[i]++;});},85);}
+function startMatrix(){
+ // Canvas lives ABOVE the body background, but BEHIND app content. Accessible and battery-aware.
+ const canvas=$('matrix'); if(!canvas)return;
+ const ctx=canvas.getContext('2d',{alpha:true});if(!ctx)return;
+ const jp='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン学習未来雲網守心'.split('');
+ const bits=['0','1','0','1','1','0'];
+ const media=matchMedia('(prefers-reduced-motion: reduce)');
+ const toggle=$('motionToggle');const saved=localStorage.getItem('rtc_v6_matrix_enabled');
+ if(toggle)toggle.checked=saved==='false'?false:true;
+ let cols=[],width=0,height=0,cell=20,last=0,raf=0;
+ const isActive=()=>!media.matches && !document.hidden && (toggle?.checked!==false);
+ const update=()=>{const active=toggle?.checked!==false;document.body.dataset.motion=active?'on':'off';localStorage.setItem('rtc_v6_matrix_enabled',active?'true':'false');};
+ if(toggle){toggle.addEventListener('change',()=>{update();ctx.clearRect(0,0,width,height);last=0;});}
+ if(media.addEventListener)media.addEventListener('change',()=>ctx.clearRect(0,0,width,height));
+ update();
+ const resize=()=>{
+  width=innerWidth;height=innerHeight;
+  const dpr=Math.min(devicePixelRatio||1,1.5);
+  canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  cell=width<680?22:21;
+  cols=Array.from({length:Math.ceil(width/cell)},(_,i)=>({
+    y:Math.random()*height/cell, speed:.5+Math.random()*.9,
+    jp:i%3!==0,color:i%11===0?'#ef70db':i%6===0?'#b6ff89':'#64f2f7',fade:Math.random()*0.6+.38
+  }));
+ };
+ resize();addEventListener('resize',resize,{passive:true});
+ const draw=time=>{
+  raf=requestAnimationFrame(draw);
+  if(!isActive() || time-last<86)return;
+  last=time;
+  ctx.fillStyle='rgba(5,12,23,.18)';ctx.fillRect(0,0,width,height);
+  ctx.textAlign='left';ctx.textBaseline='top';ctx.font=`600 ${width<680?14:15}px monospace`;
+  cols.forEach((col,i)=>{
+    const y=col.y*cell;
+    const glyph=col.jp?jp[Math.floor(Math.random()*jp.length)]:bits[Math.floor(Math.random()*bits.length)];
+    const x=i*cell+2;
+    ctx.globalAlpha=col.fade;
+    ctx.shadowBlur=9;ctx.shadowColor=col.color;ctx.fillStyle=col.color;
+    ctx.fillText(glyph,x,y);
+    ctx.shadowBlur=0;ctx.globalAlpha=.92;
+    if(Math.random()>.985)ctx.fillText(col.jp?'1':'ア',x,y-cell);
+    col.y+=col.speed;
+    if(y>height+cell*5 && Math.random()>.90)col.y=-Math.random()*height/cell*.4;
+  });
+  ctx.globalAlpha=1;
+ };
+ raf=requestAnimationFrame(draw);
+}
 function initialize(){
  // Não confiar na tela para proteger o banco: RLS decide o acesso no servidor.
  $('loginForm').querySelector('label').textContent='E-mail';$('loginUser').placeholder='voce@email.com';$('loginUser').type='email';$('suEmail').required=true;$('suPass').minLength=6;
