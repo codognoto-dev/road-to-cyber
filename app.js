@@ -11,7 +11,7 @@ const ready = Boolean(window.supabase?.createClient && /^https:\/\/[a-z0-9-]+\.s
 const sb = ready ? window.supabase.createClient(cfg.supabaseUrl, cfg.supabasePublishableKey) : null;
 const DEFAULT_DAYS = ['Segunda','Quarta','Sexta'];
 const DAYS = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
-const FOCUS_OPTIONS = ['Cyber / Cloud','Inglês','Projeto / Laboratório','Comunidade / Revisão'];
+const FOCUS_OPTIONS = ['Cyber / Cloud','Inglês','Revisão / Laboratório','Encontro com grupo'];
 const TRACKS = [
   {stage:0,name:'Stage 0 — Fundamentos & rotina',period:'Semanas 1–4',focus:'Construir consistência, lógica básica e inglês ativo.',courses:[
     {name:'Python para Iniciantes: Do Zero e Direto ao Ponto',url:'https://www.udemy.com/course/python-direto-ao-ponto/',why:'Variáveis, if/else, listas e funções.'},
@@ -149,19 +149,9 @@ function achievementList(){
 }
 function avgScore(){ return scores.length ? Math.round(scores.reduce((a,b)=>a+Number(b.score||0),0)/scores.length) : 0; }
 
-async function ensureProfile(){
-  if (!me || !sb) return;
-  const name = me.user_metadata?.full_name || me.user_metadata?.name || me.email?.split('@')[0] || 'Estudante';
-  const username = (me.email?.split('@')[0] || 'user') + '-' + String(me.id).slice(0,4);
-  const up = await sb.from('profiles').upsert({
-    id: me.id,
-    display_name: name,
-    username,
-    english_level: 'Intermediário',
-    stage: 0
-  }, { onConflict:'id', ignoreDuplicates:false }).select().single();
-  if (up.error && !String(up.error.message||'').includes('duplicate')) throw up.error;
-}
+// O perfil é criado no servidor pelo trigger handle_new_rtc_user.
+// IMPORTANTE: nunca executar upsert no login. Isso exige INSERT (bloqueado por RLS)
+// e poderia zerar as informações existentes, como a fase do aluno.
 
 async function startSession(sess){
   if (!sess?.user) { me = null; profile = null; group = null; roster = []; sessions=[]; scores=[]; showLogin(); return; }
@@ -211,9 +201,13 @@ async function refresh(){
   if (!me || refreshing || !sb) return;
   refreshing = true;
   try {
-    await ensureProfile();
     let pRes = await sb.from('profiles').select('id,display_name,username,english_level,stage').eq('id', me.id).single();
-    if (pRes.error) throw pRes.error;
+    if (pRes.error) {
+      if (pRes.error.code === 'PGRST116') {
+        throw new Error('Perfil não encontrado no banco. Execute o SQL de reparo de perfis do pacote V7.1 no SQL Editor do Supabase.');
+      }
+      throw pRes.error;
+    }
     profile = pRes.data;
 
     const memberRes = await sb.from('group_members').select('group_id,user_id').eq('user_id', me.id).limit(1);
@@ -264,7 +258,7 @@ function routinePlan(){
   const prefs = getPrefs();
   return prefs.days.map((day, idx) => ({
     day,
-    focus: prefs.focusMap[day] || (idx === 1 ? 'Inglês' : idx === prefs.days.length - 1 && prefs.days.length > 2 ? 'Projeto / Laboratório' : 'Cyber / Cloud'),
+    focus: prefs.focusMap[day] || (idx === 1 ? 'Inglês' : idx === prefs.days.length - 1 && prefs.days.length > 2 ? 'Revisão / Laboratório' : 'Cyber / Cloud'),
     duration: `${prefs.minutes} min`,
     desc: prefs.minutes >= 60 ? 'Aula + revisão + exercício prático' : prefs.minutes >= 40 ? 'Bloco enxuto e consistente' : 'Sessão rápida de manutenção'
   }));
