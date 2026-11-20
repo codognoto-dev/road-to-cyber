@@ -19,6 +19,7 @@
   let extra = null, loadedUser = null, fetchBusy = false, migrationAvailable = null;
   let publicList = [], publicListLoadedAt = 0;
   let chosenCover = 'matrix', pendingAvatar = null, pendingBlobUrl = null, removeAvatarDraft = false, myStats = null;
+  let bonusCovers = new Set(); // Benefícios concedidos no Supabase, somente à conta autenticada.
   let navigatePass = false;
 
   function showToast(text) { if(typeof toast === 'function') toast(text); }
@@ -33,7 +34,7 @@
     return url ? `<img class="rtc-avatar ${cls}" src="${escapeX(url)}" alt="Avatar de perfil" loading="lazy">` : `<span class="rtc-avatar rtc-avatar-fallback ${cls}" aria-hidden="true">守</span>`;
   }
   function coverClass(cover) { return COVERS.some(c=>c.key===cover) ? `rtc-cover-${cover}` : 'rtc-cover-matrix'; }
-  function isCoverUnlocked(c){if(!c.months)return true;const r=currentUnlock();const s=r.firstSession;if(!s)return false;const eligible=new Date(s);eligible.setMonth(eligible.getMonth()+c.months);return r.count>=c.minDone && Date.now()>=eligible.getTime();}
+  function isCoverUnlocked(c){if(!c.months || bonusCovers.has(c.key))return true;const r=currentUnlock();const s=r.firstSession;if(!s)return false;const eligible=new Date(s);eligible.setMonth(eligible.getMonth()+c.months);return r.count>=c.minDone && Date.now()>=eligible.getTime();}
   function currentUnlock() {
     const done = (typeof sessions === 'undefined' ? [] : sessions).filter(s=>s.status==='done');
     const count = myStats ? Number(myStats.done_count||0) : done.length;
@@ -140,6 +141,12 @@
         .eq('id',me.id).single();
       if(error){migrationAvailable=false;showMigrationNotice('Não foi possível carregar a personalização agora. Seus estudos continuam disponíveis.');return;}
       migrationAvailable=true;hideMigrationNotice();extra=data;chosenCover=extra.cover_key||'matrix';
+      // Só o próprio estudante pode consultar os benefícios concedidos à conta.
+      bonusCovers = new Set();
+      const grantRes = await sb.from('rtc_cover_grants').select('cover_key').eq('user_id',me.id);
+      if(!grantRes.error && Array.isArray(grantRes.data)) {
+        bonusCovers = new Set(grantRes.data.map(g => g.cover_key));
+      }
       const statRes=await sb.rpc('rtc_get_public_stats',{p_user_id:me.id});
       myStats=!statRes.error && statRes.data?.length ? statRes.data[0] : null;
       $x('rtcBio').value=extra.bio||'';
@@ -168,7 +175,7 @@
       const disabled=!isCoverUnlocked(c);
       return `<button type="button" class="rtc-cover-choice ${chosenCover===c.key?'selected':''}" data-cover="${c.key}" ${disabled?'disabled':''} aria-label="${escapeX(c.name)}">
         <span class="rtc-cover rtc-cover-swatch ${coverClass(c.key)}" aria-hidden="true"></span>
-        <span class="rtc-cover-label">${escapeX(c.name)}</span><span class="rtc-cover-note">${disabled?'🔒 ':''}${escapeX(c.hint)}</span>
+        <span class="rtc-cover-label">${escapeX(c.name)}</span><span class="rtc-cover-note">${disabled?'🔒 ':''}${bonusCovers.has(c.key)?'👑 Exclusiva do fundador':escapeX(c.hint)}</span>
       </button>`;
     }).join('');
     const bar=$x('rtcUnlockBar'),label=$x('rtcUnlockText');
@@ -183,7 +190,8 @@
     if(eligible.count>=8)badges.push('⚡ 8 sessões');
     if(eligible.allowed)badges.push('🌸 2 meses de estudo');
     if(isCoverUnlocked(COVERS[4]))badges.push('👹 Oni Protocol');
-    if(isCoverUnlocked(COVERS[5]))badges.push('🔥 Oni Ascendant');
+    if(bonusCovers.has('ascendant'))badges.push('👑 Fundador • Oni Ascendant');
+    else if(isCoverUnlocked(COVERS[5]))badges.push('🔥 Oni Ascendant');
     if((scores||[]).length>=1)badges.push('🧪 Primeira prova');
     if($x('rtcAchievementList'))$x('rtcAchievementList').innerHTML=badges.length?badges.map(b=>`<span class="rtc-achievement ${b.includes('2 meses')?'special':''}">${escapeX(b)}</span>`).join(''):'<span class="small">Suas conquistas aparecerão aqui conforme você estudar.</span>';
   }
