@@ -13,7 +13,8 @@
     {key:'sakura',name:'Sakura.exe',hint:'2 meses · 8 sessões',months:2,minDone:8},
     {key:'guardian',name:'守 Guardian',hint:'2 meses · 8 sessões',months:2,minDone:8},
     {key:'oni',name:'Oni Protocol',hint:'3 meses · 12 sessões',months:3,minDone:12},
-    {key:'ascendant',name:'Oni Ascendant',hint:'6 meses · 24 sessões',months:6,minDone:24}
+    {key:'ascendant',name:'Oni Ascendant',hint:'6 meses · 24 sessões',months:6,minDone:24},
+    {key:'foundation',name:'Foundation // Origin',hint:'👑 Edição do fundador',months:0,minDone:0}
   ];
   const BUCKET = 'rtc-profile-images';
   let extra = null, loadedUser = null, fetchBusy = false, migrationAvailable = null;
@@ -34,7 +35,7 @@
     return url ? `<img class="rtc-avatar ${cls}" src="${escapeX(url)}" alt="Avatar de perfil" loading="lazy">` : `<span class="rtc-avatar rtc-avatar-fallback ${cls}" aria-hidden="true">守</span>`;
   }
   function coverClass(cover) { return COVERS.some(c=>c.key===cover) ? `rtc-cover-${cover}` : 'rtc-cover-matrix'; }
-  function isCoverUnlocked(c){if(!c.months || bonusCovers.has(c.key))return true;const r=currentUnlock();const s=r.firstSession;if(!s)return false;const eligible=new Date(s);eligible.setMonth(eligible.getMonth()+c.months);return r.count>=c.minDone && Date.now()>=eligible.getTime();}
+  function isCoverUnlocked(c){if(c.key==='foundation')return bonusCovers.has('foundation');if(!c.months || bonusCovers.has(c.key))return true;const r=currentUnlock();const s=r.firstSession;if(!s)return false;const eligible=new Date(s);eligible.setMonth(eligible.getMonth()+c.months);return r.count>=c.minDone && Date.now()>=eligible.getTime();}
   function currentUnlock() {
     const done = (typeof sessions === 'undefined' ? [] : sessions).filter(s=>s.status==='done');
     const count = myStats ? Number(myStats.done_count||0) : done.length;
@@ -190,6 +191,7 @@
     if(eligible.count>=8)badges.push('⚡ 8 sessões');
     if(eligible.allowed)badges.push('🌸 2 meses de estudo');
     if(isCoverUnlocked(COVERS[4]))badges.push('👹 Oni Protocol');
+    if(bonusCovers.has('foundation'))badges.push('👑 Foundation • Fundador');
     if(bonusCovers.has('ascendant'))badges.push('👑 Fundador • Oni Ascendant');
     else if(isCoverUnlocked(COVERS[5]))badges.push('🔥 Oni Ascendant');
     if((scores||[]).length>=1)badges.push('🧪 Primeira prova');

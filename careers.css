@@ -1,0 +1,57 @@
+/* Road to Cyber 9 • Career selector + personal schedule */
+#tracks .section-head:first-child{margin-bottom:18px}
+#tracks #trackCards{display:block!important;min-width:0}
+.rtc-v9-header{margin:0 0 16px}
+.rtc-v9-header h2{font-size:clamp(25px,3vw,34px);margin:6px 0;font-family:"Space Grotesk",system-ui,sans-serif;letter-spacing:-.035em}
+.rtc-v9-header p{color:#b6c8db;margin:8px 0}
+.rtc-path-selector{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0 22px}
+.rtc-path-option{border:1px solid #355675;background:linear-gradient(140deg,#101e33,#0c1529);color:#e7f7ff;display:flex;flex-direction:column;text-align:left;gap:6px;padding:16px;border-radius:18px;cursor:pointer;transition:border-color .24s ease,transform .24s ease,background .24s ease,box-shadow .24s ease}
+.rtc-path-option:hover{transform:translateY(-3px);border-color:#42cfe3;box-shadow:0 0 24px #13d5e817}
+.rtc-path-option.active{border-color:#62eff2;background:linear-gradient(145deg,#0a3f51,#182443);box-shadow:inset 3px 0 #65eaf4,0 0 25px #1ccbf31c}
+.rtc-path-emoji{font-size:25px}
+.rtc-path-option strong{font-family:"Space Grotesk",system-ui;font-size:15px;line-height:1.3}
+.rtc-path-option small{font-size:12px;color:#a3b8cf;line-height:1.4}
+.rtc-v9-feature{padding:24px;border:1px solid #37768b;border-radius:20px;background:radial-gradient(ellipse at 90% 12%,#175e7655,transparent 47%),linear-gradient(115deg,#0c2235,#111c33 66%,#0d1730);position:relative;overflow:hidden}
+.rtc-v9-feature.japan{border-color:#478991;background:linear-gradient(90deg,#06172dec,#061d31dd 62%,#061d3155),url('./assets/foundation.webp') right center / cover no-repeat}
+.rtc-v9-feature h2{font-size:clamp(25px,3.4vw,40px);margin:8px 0 5px}
+.rtc-v9-feature p{max-width:850px;color:#dcecf6}
+.rtc-v9-progress{height:7px;border-radius:12px;background:#162f43;margin-top:18px;overflow:hidden}
+.rtc-v9-progress span{height:100%;display:block;background:linear-gradient(90deg,#58f7ff,#e56bd3);transition:width .4s}
+.rtc-resource-controls{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:12px;margin:20px 0}
+.rtc-resource-controls label{font-size:12px;color:#adc4d9}
+.rtc-resource-controls input,.rtc-resource-controls select{margin-top:7px}
+.rtc-resource-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.rtc-resource{min-height:245px;border:1px solid #2a4c61;border-radius:18px;padding:17px;background:linear-gradient(140deg,rgba(11,25,43,.95),rgba(12,20,36,.94));display:flex;flex-direction:column;transition:transform .22s,border-color .22s,box-shadow .22s}
+.rtc-resource:hover{transform:translateY(-3px);border-color:#5cdde1;box-shadow:0 12px 27px #0006,0 0 16px #1cdfff18}
+.rtc-resource h3{font-size:16px;line-height:1.4;margin:13px 0 4px}
+.rtc-resource p{font-size:13px;color:#b5c9d9;line-height:1.6;margin:13px 0 16px;flex:1}
+.rtc-resource-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rtc-resource-actions{display:flex;flex-wrap:wrap;gap:8px}
+.rtc-resource-actions .btn{flex:1;white-space:nowrap;font-size:11.5px}
+.rtc-path-stages{margin-top:24px}
+.rtc-stage-detail{border:1px solid #2e4c69;border-radius:13px;background:#0e1e30;margin-top:10px;overflow:hidden}
+.rtc-stage-detail summary{padding:13px 16px;cursor:pointer;font-weight:700;display:flex;gap:14px;justify-content:space-between;align-items:center}
+.rtc-stage-detail[open] summary{border-bottom:1px solid #2e4c69;color:#76f6fa}
+.rtc-stage-detail summary .small{font-weight:400}
+.rtc-stage-items{padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px}
+.rtc-stage-items a{display:inline-block;border:1px solid #3b5972;background:#182a3d;color:#dffbff;border-radius:12px;padding:9px 12px;font-size:12px}
+#rtcPersonalPlanner{margin-bottom:20px}
+#rtcPersonalPlanner .section-head h2{font-size:24px}
+.rtc-plan-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.rtc-plan-day{border:1px solid #284560;background:linear-gradient(145deg,#101a29,#0c1727);border-radius:17px;padding:15px;opacity:.62;transition:background .2s,border-color .2s,opacity .2s}
+.rtc-plan-day.enabled{border-color:#3a7484;opacity:1;background:linear-gradient(145deg,#102a3b,#111a30)}
+.rtc-plan-check{display:flex;gap:10px;align-items:center;margin:0 0 12px;color:#e8f5fc;font-size:14px}
+.rtc-plan-check input{width:19px;height:19px;accent-color:#4df5ff}
+.rtc-plan-day label:not(.rtc-plan-check){font-size:12px;color:#b9cee2}
+.rtc-plan-day input[type=text],.rtc-plan-day select{margin-top:7px}
+.rtc-plan-day input:disabled,.rtc-plan-day select:disabled{opacity:.56}
+.rtc-cover-sakura,.rtc-cover-guardian{background-size:cover!important;background-position:63% center!important;background-repeat:no-repeat!important}
+.rtc-cover-sakura{background-image:linear-gradient(90deg,#0a0d23d9 2%,#0c112668 70%,#0b102322),url('./assets/sakura-premium.webp')!important}
+.rtc-cover-guardian{background-image:linear-gradient(90deg,#0b1623dc 2%,#0c1a2988 65%,#09192633),url('./assets/guardian-premium.webp')!important}
+.rtc-cover-sakura::before,.rtc-cover-guardian::before{background:linear-gradient(115deg,transparent 18%,#ffffff1c 51%,transparent 58%);background-size:220% 100%;animation:rtcCoverShimmer 12s ease-in-out infinite;opacity:.5;pointer-events:none}
+@keyframes rtcCoverShimmer{from{background-position:130% center}to{background-position:-130% center}}
+.rtc-cover-swatch.rtc-cover-sakura,.rtc-cover-swatch.rtc-cover-guardian{background-position:68% center!important}
+.rtc-cover-foundation{background-image:linear-gradient(90deg,#04111dc9,#0a163558 70%),url('./assets/foundation.webp')!important;background-size:cover!important;background-position:center center!important}
+@media (max-width:1200px){.rtc-path-selector{grid-template-columns:repeat(3,minmax(0,1fr))}.rtc-resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.rtc-path-selector{grid-template-columns:repeat(2,minmax(0,1fr))}.rtc-resource-grid,.rtc-plan-grid,.rtc-resource-controls{grid-template-columns:1fr}.rtc-stage-detail summary{align-items:flex-start;flex-direction:column;gap:4px}.rtc-v9-feature{padding:18px}}
+@media (prefers-reduced-motion:reduce){.rtc-cover-sakura::before,.rtc-cover-guardian::before{animation:none}}
