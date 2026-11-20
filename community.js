@@ -8,10 +8,12 @@
   const qa = (sel, root=document) => [...root.querySelectorAll(sel)];
   const escapeX = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const COVERS = [
-    {key:'matrix',name:'Neon Matrix',hint:'Inicial',locked:false},
-    {key:'pulse',name:'Digital Pulse',hint:'Inicial',locked:false},
-    {key:'sakura',name:'Sakura.exe',hint:'2 meses de estudo',locked:true},
-    {key:'guardian',name:'守 Guardian',hint:'2 meses de estudo',locked:true}
+    {key:'matrix',name:'Neon Matrix',hint:'Inicial',months:0,minDone:0},
+    {key:'pulse',name:'Digital Pulse',hint:'Inicial',months:0,minDone:0},
+    {key:'sakura',name:'Sakura.exe',hint:'2 meses · 8 sessões',months:2,minDone:8},
+    {key:'guardian',name:'守 Guardian',hint:'2 meses · 8 sessões',months:2,minDone:8},
+    {key:'oni',name:'Oni Protocol',hint:'3 meses · 12 sessões',months:3,minDone:12},
+    {key:'ascendant',name:'Oni Ascendant',hint:'6 meses · 24 sessões',months:6,minDone:24}
   ];
   const BUCKET = 'rtc-profile-images';
   let extra = null, loadedUser = null, fetchBusy = false, migrationAvailable = null;
@@ -31,13 +33,14 @@
     return url ? `<img class="rtc-avatar ${cls}" src="${escapeX(url)}" alt="Avatar de perfil" loading="lazy">` : `<span class="rtc-avatar rtc-avatar-fallback ${cls}" aria-hidden="true">守</span>`;
   }
   function coverClass(cover) { return COVERS.some(c=>c.key===cover) ? `rtc-cover-${cover}` : 'rtc-cover-matrix'; }
+  function isCoverUnlocked(c){if(!c.months)return true;const r=currentUnlock();const s=r.firstSession;if(!s)return false;const eligible=new Date(s);eligible.setMonth(eligible.getMonth()+c.months);return r.count>=c.minDone && Date.now()>=eligible.getTime();}
   function currentUnlock() {
     const done = (typeof sessions === 'undefined' ? [] : sessions).filter(s=>s.status==='done');
     const count = myStats ? Number(myStats.done_count||0) : done.length;
     const firstDate = myStats?.first_done_at ? new Date(myStats.first_done_at) : done.length ? done.reduce((best,item)=>new Date(item.created_at)<best?new Date(item.created_at):best,new Date(done[0].created_at)) : null;
-    if(!firstDate) return {allowed:false,count:0,first:null,remaining:8};
+    if(!firstDate) return {allowed:false,count:0,first:null,firstSession:null,remaining:8};
     const date = new Date(firstDate);date.setMonth(date.getMonth()+2);
-    return {allowed:count>=8 && new Date()>=date,count,first:date,remaining:Math.max(0,8-count)};
+    return {allowed:count>=8 && new Date()>=date,count,first:date,firstSession:new Date(firstDate),remaining:Math.max(0,8-count)};
   }
   function safeStat(x) { return x===undefined || x===null ? '—' : escapeX(x); }
   function profileMarkup(p, opts={}) {
@@ -56,9 +59,9 @@
       document.body.append(overlay);
     }
     const authLogo=q('#authView .brand .logo');
-    if(authLogo) authLogo.innerHTML='<img class="rtc-brand-symbol" src="./assets/icon.png" alt="Road to Cyber">';
+    if(authLogo) authLogo.innerHTML='<img class="rtc-brand-symbol" src="./assets/mark.png" alt="Road to Cyber">';
     const sideBrand=q('.sidebar .brandline');
-    if(sideBrand && !sideBrand.querySelector('img')) sideBrand.insertAdjacentHTML('afterbegin','<img class="rtc-side-brand" src="./assets/icon.png" alt="">');
+    if(sideBrand && !sideBrand.querySelector('img')) sideBrand.insertAdjacentHTML('afterbegin','<img class="rtc-side-brand" src="./assets/mark.png" alt="">');
     const chatLogo=q('.hero-app .hero-status');
     if(chatLogo) chatLogo.innerHTML='<span class="signal-dot"></span> ROAD TO CYBER • COMUNIDADE';
   }
@@ -68,7 +71,7 @@
     if(!community || $x('rtcDirectory')) return;
     const section=document.createElement('div');section.className='panel rtc-section glow';section.id='rtcDirectory';
     section.innerHTML=`
-      <div class="section-head"><div><div class="eyebrow">Explorar comunidade</div><h2>Estudantes Road to Cyber</h2><p class="small">Perfis que optaram por aparecer na comunidade. Amigos do seu grupo permanecem visíveis no painel abaixo.</p></div><button class="btn ghost sm" type="button" id="rtcDirectoryRefresh">Atualizar</button></div>
+      <div class="section-head"><div><div class="eyebrow">Explorar comunidade</div><h2>Estudantes Road to Cyber</h2><p class="small">Conheça estudantes, descubra novas trilhas e acompanhe quem escolheu compartilhar sua jornada.</p></div><button class="btn ghost sm" type="button" id="rtcDirectoryRefresh">Atualizar</button></div>
       <div class="rtc-row" style="justify-content:space-between;margin-bottom:14px"><input class="rtc-search" type="search" id="rtcDirectorySearch" placeholder="Buscar estudante..." aria-label="Buscar estudantes"></div>
       <div id="rtcDirectoryList" class="rtc-member-grid"><div class="notice info">Carregando estudantes...</div></div>`;
     const head=community.querySelector('.section-head');
@@ -84,7 +87,7 @@
     const settings=$x('settings');if(!settings || $x('rtcProfileStudio')) return;
     const block=document.createElement('div');block.className='panel rtc-section glow';block.id='rtcProfileStudio';
     block.innerHTML=`
-    <div class="section-head"><div><div class="eyebrow">Personalização</div><h2>Seu cartão de estudante</h2></div><span class="pill mag">PROFILE // CUSTOM</span></div>
+    <div class="section-head"><div><div class="eyebrow">Personalização</div><h2>Seu perfil</h2></div><span class="pill mag">PROFILE // CUSTOM</span></div>
     <div id="rtcProfileSchemaNotice" class="notice warn hidden" style="margin-bottom:15px"></div>
     <div class="rtc-studio-grid">
       <div>
@@ -103,7 +106,7 @@
         <div class="split"><button type="button" id="rtcSaveAppearance" class="btn primary">Salvar personalização</button><button type="button" class="btn ghost" id="rtcRemoveAvatar">Retirar foto</button></div>
       </div>
     </div>
-    <hr class="sep"><div class="section-head" style="margin-bottom:10px"><h3>Capas desbloqueáveis</h3><span class="pill lime">2 meses de estudo = prêmio</span></div>
+    <hr class="sep"><div class="section-head" style="margin-bottom:10px"><h3>Capas desbloqueáveis</h3><span class="pill lime">Conquistas por dedicação</span></div>
     <div id="rtcCoverChoices" class="rtc-select-cover"></div>`;
     const firstGrid=settings.querySelector('.grid.cols2');
     settings.insertBefore(block,firstGrid);
@@ -135,7 +138,7 @@
       const {data,error}=await sb.from('profiles')
         .select('id,display_name,username,english_level,stage,bio,avatar_path,cover_key,is_public,created_at')
         .eq('id',me.id).single();
-      if(error){migrationAvailable=false;showMigrationNotice('A personalização precisa da migração 03_comunidade_perfis.sql no Supabase. O painel de estudos continua funcionando normalmente.');return;}
+      if(error){migrationAvailable=false;showMigrationNotice('Não foi possível carregar a personalização agora. Seus estudos continuam disponíveis.');return;}
       migrationAvailable=true;hideMigrationNotice();extra=data;chosenCover=extra.cover_key||'matrix';
       const statRes=await sb.rpc('rtc_get_public_stats',{p_user_id:me.id});
       myStats=!statRes.error && statRes.data?.length ? statRes.data[0] : null;
@@ -143,7 +146,7 @@
       $x('rtcPublicToggle').checked=!!extra.is_public;
       $x('rtcSaveAppearance').disabled=false;
       renderProfileStudio();
-    }catch(err){migrationAvailable=false;showMigrationNotice('Ainda não foi possível carregar os dados da personalização. Execute o SQL da V8 e tente novamente.');}
+    }catch(err){migrationAvailable=false;showMigrationNotice('Não foi possível carregar as opções de personalização. Tente novamente mais tarde.');}
     finally{fetchBusy=false;}
   }
   function updatePreview(){
@@ -162,7 +165,7 @@
     const node=$x('rtcCoverChoices'); if(!node)return;
     const eligible=currentUnlock();
     node.innerHTML=COVERS.map(c=>{
-      const disabled=c.locked&&!eligible.allowed;
+      const disabled=!isCoverUnlocked(c);
       return `<button type="button" class="rtc-cover-choice ${chosenCover===c.key?'selected':''}" data-cover="${c.key}" ${disabled?'disabled':''} aria-label="${escapeX(c.name)}">
         <span class="rtc-cover rtc-cover-swatch ${coverClass(c.key)}" aria-hidden="true"></span>
         <span class="rtc-cover-label">${escapeX(c.name)}</span><span class="rtc-cover-note">${disabled?'🔒 ':''}${escapeX(c.hint)}</span>
@@ -171,16 +174,18 @@
     const bar=$x('rtcUnlockBar'),label=$x('rtcUnlockText');
     if(bar) bar.style.width=`${Math.min(100,eligible.count/8*100)}%`;
     if(label){
-      if(eligible.allowed) label.textContent='Conquista desbloqueada! Suas capas Sakura.exe e 守 Guardian estão disponíveis.';
-      else if(eligible.count===0) label.textContent='As capas exclusivas começam a contar a partir da sua primeira sessão concluída. Requisitos: 2 meses e 8 sessões.';
+      if(eligible.allowed) label.textContent='As capas de 2 meses estão liberadas. Continue estudando para conquistar Oni Protocol (3 meses) e Oni Ascendant (6 meses)!';
+      else if(eligible.count===0) label.textContent='Sua primeira sessão marca o começo da jornada. Continue estudando para desbloquear novas capas!';
       else label.textContent=`Você registrou ${eligible.count}/8 sessões concluídas. Data mínima para desbloqueio: ${eligible.first.toLocaleDateString('pt-BR')}.`;
     }
     const badges=[];
     if(eligible.count>=1)badges.push('✦ Primeira sessão');
     if(eligible.count>=8)badges.push('⚡ 8 sessões');
     if(eligible.allowed)badges.push('🌸 2 meses de estudo');
+    if(isCoverUnlocked(COVERS[4]))badges.push('👹 Oni Protocol');
+    if(isCoverUnlocked(COVERS[5]))badges.push('🔥 Oni Ascendant');
     if((scores||[]).length>=1)badges.push('🧪 Primeira prova');
-    $x('rtcAchievementList').innerHTML=badges.length?badges.map(b=>`<span class="rtc-achievement ${b.includes('2 meses')?'special':''}">${escapeX(b)}</span>`).join(''):'<span class="small">Suas conquistas aparecerão aqui conforme você estudar.</span>';
+    if($x('rtcAchievementList'))$x('rtcAchievementList').innerHTML=badges.length?badges.map(b=>`<span class="rtc-achievement ${b.includes('2 meses')?'special':''}">${escapeX(b)}</span>`).join(''):'<span class="small">Suas conquistas aparecerão aqui conforme você estudar.</span>';
   }
   function renderProfileStudio(){updatePreview();renderCovers();}
 
@@ -202,7 +207,7 @@
     }finally{URL.revokeObjectURL(u);}
   }
   async function saveAppearance(){
-    if(migrationAvailable===false)return showToast('Execute a migração 03 no Supabase primeiro.');
+    if(migrationAvailable===false)return showToast('Não foi possível salvar a personalização. Tente novamente mais tarde.');
     if(!me || !sb)return;
     const btn=$x('rtcSaveAppearance');btn.disabled=true;btn.textContent='Salvando...';
     const oldPath=extra?.avatar_path||null;
@@ -252,7 +257,7 @@
         .eq('is_public',true).order('created_at',{ascending:false}).limit(150);
       if(error)throw error;
       publicList=data||[];publicListLoadedAt=Date.now();renderPublicDirectory();
-    }catch(err){if(node)node.innerHTML='<div class="notice warn">A busca de estudantes precisa da migração 03_comunidade_perfis.sql no Supabase. O restante do site segue disponível.</div>';}
+    }catch(err){if(node)node.innerHTML='<div class="notice warn">A busca está indisponível no momento. Você ainda pode acessar seus estudos.</div>';}
   }
   async function openMemberProfile(id){
     const candidate=publicList.find(x=>x.id===id) || roster.find(x=>x.id===id) || (me?.id===id ? {...profile,...extra} : null);
@@ -280,7 +285,7 @@
         <p class="small" style="margin-top:18px">Mostramos apenas resultados agregados. Notas pessoais e respostas completas de provas não são compartilhadas.</p>`;
       box.querySelector('#rtcCloseProfile').onclick=()=>overlay.remove();
     }catch(err){
-      overlay.firstChild.innerHTML=`<div class="notice warn">Não foi possível carregar esse perfil. Ele pode ser privado ou a migração 03 ainda não foi aplicada.</div><button class="btn ghost" style="margin-top:14px" id="rtcCloseProfile">Fechar</button>`;
+      overlay.firstChild.innerHTML=`<div class="notice warn">Não foi possível abrir esse perfil. Ele pode ser privado ou estar indisponível.</div><button class="btn ghost" style="margin-top:14px" id="rtcCloseProfile">Fechar</button>`;
       overlay.querySelector('#rtcCloseProfile').onclick=()=>overlay.remove();
     }
   }
@@ -294,6 +299,16 @@
       openMemberProfile(button.dataset.member);
     },true);
   }
+  function setupProfileShortcut(){
+    const shortcut=$x('profileShortcut');
+    if(!shortcut)return;
+    shortcut.onclick=()=>{
+      const nav=q('.nav button[data-page="settings"]');
+      if(nav)nav.click();
+      const focus=()=>{const studio=$x('rtcProfileStudio');if(studio)studio.scrollIntoView({behavior:'smooth',block:'start'});};
+      setTimeout(focus,820);
+    };
+  }
   function setupNavigation(){
     const overlay=$x('rtcBlackout');
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -304,7 +319,7 @@
       if(transitioning){e.preventDefault();e.stopImmediatePropagation();return;}
       const active=document.querySelector('.page.active');
       if(active?.id===btn.dataset.page)return;
-      if(!overlay || reduced.matches)return;
+      if(!overlay || !window.rtcFxEnabled?.())return;
       e.preventDefault();e.stopImmediatePropagation();
       transitioning=true;
       overlay.classList.remove('on');void overlay.offsetWidth;
@@ -330,7 +345,7 @@
     };
   }
   function init(){
-    addChrome();addDirectory();addProfileStudio();setupRosterClick();setupNavigation();enhanceRender();
+    addChrome();addDirectory();addProfileStudio();setupRosterClick();setupNavigation();setupProfileShortcut();enhanceRender();
     if(typeof me!=='undefined' && me?.id){loadedUser=me.id;loadExtraMe();}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();

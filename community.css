@@ -80,3 +80,54 @@ body[data-motion="off"] canvas#matrix{opacity:0!important}
 canvas#matrix{position:fixed!important;inset:0!important;z-index:0!important;opacity:.78;pointer-events:none!important;}
 #authView,#appView{position:relative;z-index:1}
 body[data-motion="off"] canvas#matrix{opacity:0!important}
+
+/* Road to Cyber • Immersive Interface */
+:root{--rtc-transition-duration:780ms}
+body{font-family:'Manrope',system-ui,Arial,sans-serif;letter-spacing:0;font-size:15px;text-rendering:optimizeLegibility}
+.eyebrow,.badge,.pill,.small,.nav button{font-family:'Manrope',system-ui,Arial,sans-serif!important;letter-spacing:.02em!important}
+:where(.panel,.neo-card,.stat,.day-card,.linkcard){backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+#appView .panel:not(.modal),#appView .neo-card{background:linear-gradient(145deg,rgba(10,24,41,.83),rgba(10,19,37,.86));}
+#authView .hero{background:linear-gradient(135deg,rgba(9,24,43,.8),rgba(8,14,30,.9));}
+#authView .brand.rtc-login-brand{display:flex;justify-content:flex-start;align-items:center;min-height:170px;margin-bottom:16px;max-width:660px}
+.rtc-login-wordmark{display:block;width:min(100%,610px);height:auto;max-height:190px;object-fit:contain;object-position:left center;filter:drop-shadow(0 0 18px rgba(77,245,255,.13))}
+#authView .hero h1{font-size:clamp(2.1rem,4.7vw,4rem);max-width:860px}
+#authView .hero-grid .kpi{font-size:clamp(1.2rem,2vw,1.9rem);letter-spacing:-.04em}
+#authView .brand.rtc-login-brand+.eyebrow{margin-top:0}
+.rtc-side-brand{width:45px;height:45px;object-fit:contain}
+#profileShortcut{position:relative;z-index:2;cursor:pointer}
+#rtcProfileStudio{scroll-margin-top:110px}
+#settings .rtc-cover .rtc-profile-name{font-weight:800}
+body[data-motion='on'] canvas#matrix{opacity:.95!important;filter:saturate(1.25) brightness(1.15)!important;mix-blend-mode:screen}
+body[data-motion='off'] canvas#matrix{opacity:0!important}
+#rtcBlackout{pointer-events:none}
+#rtcBlackout.on{animation:rtcBlackout var(--rtc-transition-duration) ease-in-out both}
+#rtcBlackout.on .rtc-scanline{animation:rtcScan var(--rtc-transition-duration) cubic-bezier(.22,.61,.36,1) both}
+.rtc-cover-oni,.rtc-cover-ascendant{background-position:center right;background-repeat:no-repeat;background-size:cover;}
+.rtc-cover-oni{background-image:linear-gradient(90deg,rgba(2,9,23,.55),transparent 72%),url('./assets/oni-protocol.webp')}
+.rtc-cover-ascendant{background-image:linear-gradient(90deg,rgba(3,7,20,.44),transparent 70%),url('./assets/oni-ascendant.webp')}
+.rtc-cover-oni::before,.rtc-cover-ascendant::before{background:linear-gradient(120deg,transparent 0%,rgba(61,244,255,.06) 50%,transparent 58%);background-size:240% 100%;animation:rtcCoverShine 9s linear infinite;opacity:1}
+.rtc-cover-ascendant::before{animation-duration:6s;background:linear-gradient(120deg,transparent 0%,rgba(245,75,226,.13) 48%,transparent 54%);background-size:250% 100%}
+.rtc-cover-oni:after,.rtc-cover-ascendant:after{background:linear-gradient(to top,rgba(1,5,14,.82),transparent 75%)}
+@keyframes rtcCoverShine{from{background-position:110% 50%}to{background-position:-110% 50%}}
+.rtc-cover-swatch.rtc-cover-oni,.rtc-cover-swatch.rtc-cover-ascendant{background-position:right center}
+.rtc-cover-choice:disabled{opacity:.73;filter:saturate(.58)}
+.rtc-cover-choice:hover:not(:disabled){transform:translateY(-5px);box-shadow:0 0 18px rgba(75,245,255,.18),0 8px 35px rgba(0,0,0,.36)}
+@media(prefers-reduced-motion:reduce){
+  /* Explicit in-app consent allows effect previews even with OS reduced-motion. */
+  body[data-motion='on'] canvas#matrix{opacity:.95!important}
+  body[data-interface-fx='on'] #rtcBlackout.on{display:grid!important;animation:rtcBlackout var(--rtc-transition-duration) ease-in-out both!important}
+  body[data-interface-fx='on'] #rtcBlackout.on .rtc-scanline{animation:rtcScan var(--rtc-transition-duration) ease-in-out both!important}
+  body[data-interface-fx='on'] .page.active{animation:rtcPageIn .48s cubic-bezier(.16,1,.3,1)!important}
+  .rtc-cover-oni::before,.rtc-cover-ascendant::before{animation:none!important}
+}
+@media(max-width:800px){
+  #authView .brand.rtc-login-brand{min-height:110px;margin-bottom:12px}
+  .rtc-login-wordmark{width:min(100%,480px);max-height:135px}
+  .rtc-cover-oni,.rtc-cover-ascendant{background-position:65% center}
+}
+/* Foco claro na entrada e enquadramento da arte em cards menores */
+#authView .auth-tabs{display:none!important}
+#authView #googleBtn{padding:16px 18px;min-height:54px;font-size:15px;box-shadow:0 0 24px rgba(77,245,255,.16)}
+#authView #loginForm{padding-top:10px}
+#authView #loginForm::before{content:'Ou continue com e-mail e senha';display:block;margin:0 0 16px;color:#aabfd8;font-size:12px;font-weight:700}
+.rtc-cover-swatch.rtc-cover-oni,.rtc-cover-swatch.rtc-cover-ascendant{background-position:64% center!important}

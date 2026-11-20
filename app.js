@@ -204,7 +204,7 @@ async function refresh(){
     let pRes = await sb.from('profiles').select('id,display_name,username,english_level,stage').eq('id', me.id).single();
     if (pRes.error) {
       if (pRes.error.code === 'PGRST116') {
-        throw new Error('Perfil não encontrado no banco. Execute o SQL de reparo de perfis do pacote V7.1 no SQL Editor do Supabase.');
+        throw new Error('Não foi possível abrir seu perfil. Entre em contato com a administração da comunidade.');
       }
       throw pRes.error;
     }
@@ -382,7 +382,7 @@ function bindMemberButtons(){
     const delta = group ? Math.max(0, Number(group.target_stage) - Number(m.stage)) : 0;
     const overlay = document.createElement('div');
     overlay.className='modal-backdrop show';
-    overlay.innerHTML = `<div class="panel modal glow"><div class="section-head"><div><div class="eyebrow">Perfil da comunidade</div><h2>${esc(m.display_name)}</h2></div><button class="btn ghost sm" type="button" id="closeMemberModal">Fechar</button></div><div class="grid cols2"><div class="neo-card"><strong>@${esc(m.username)}</strong><p class="small" style="margin-top:8px">Nível de inglês: ${esc(m.english_level || 'não informado')}</p><p class="small">Stage atual: ${esc(m.stage)}</p><p class="small">Status no grupo: ${delta ? `precisa avançar ${delta} fase(s)` : 'alinhado com a fase-alvo'}</p></div><div class="neo-card"><strong>Evolução visível</strong><p class="small" style="margin-top:8px">Sessões visíveis: ${esc(summary.sessions ?? '—')}</p><p class="small">Sessões concluídas: ${esc(summary.done ?? '—')}</p><p class="small">Média de simulados: ${summary.avg ?? '—'}${summary.avg != null ? '%' : ''}</p><p class="small">Última atividade: ${summary.latest ? new Date(summary.latest).toLocaleDateString('pt-BR') : '—'}</p></div></div><div class="notice info" style="margin-top:14px">Obs.: se as políticas do banco não permitirem leitura ampla, alguns indicadores de evolução podem aparecer como “—”. Nesse caso, a solução ideal é uma tabela/resumo público do grupo na próxima migração.</div></div>`;
+    overlay.innerHTML = `<div class="panel modal glow"><div class="section-head"><div><div class="eyebrow">Perfil da comunidade</div><h2>${esc(m.display_name)}</h2></div><button class="btn ghost sm" type="button" id="closeMemberModal">Fechar</button></div><div class="grid cols2"><div class="neo-card"><strong>@${esc(m.username)}</strong><p class="small" style="margin-top:8px">Nível de inglês: ${esc(m.english_level || 'não informado')}</p><p class="small">Stage atual: ${esc(m.stage)}</p><p class="small">Status no grupo: ${delta ? `precisa avançar ${delta} fase(s)` : 'alinhado com a fase-alvo'}</p></div><div class="neo-card"><strong>Evolução visível</strong><p class="small" style="margin-top:8px">Sessões visíveis: ${esc(summary.sessions ?? '—')}</p><p class="small">Sessões concluídas: ${esc(summary.done ?? '—')}</p><p class="small">Média de simulados: ${summary.avg ?? '—'}${summary.avg != null ? '%' : ''}</p><p class="small">Última atividade: ${summary.latest ? new Date(summary.latest).toLocaleDateString('pt-BR') : '—'}</p></div></div><div class="notice info" style="margin-top:14px">Alguns estudantes preferem não compartilhar seus resultados. Quando isso acontecer, os indicadores aparecerão como “—”.</div></div>`;
     document.body.append(overlay);
     overlay.querySelector('#closeMemberModal').onclick = () => overlay.remove();
     overlay.addEventListener('click', (e)=>{ if(e.target === overlay) overlay.remove(); });
@@ -406,86 +406,86 @@ function showQuiz(cycle){
 }
 
 function startMatrix(){
-  // V8.1: true transparent canvas; no accumulating opaque rectangle over the page.
+  // Slower cyber rain with rare character glitches; respects explicit user preference.
   const canvas=el('matrix');
-  if (!canvas || canvas.dataset.rtcRainStarted === '1') return;
-  const ctx=canvas.getContext('2d',{alpha:true});
-  if (!ctx) return;
+  if (!canvas || canvas.dataset.rtcRainStarted==='1') return;
+  const ctx=canvas.getContext('2d',{alpha:true});if(!ctx)return;
   canvas.dataset.rtcRainStarted='1';
-
-  const jp='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン学習未来雲網守心'.split('');
-  const bits='01011001'.split('');
-  const media=window.matchMedia('(prefers-reduced-motion: reduce)');
+  const jp=[...'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン学習未来雲網守心'];
+  const bits=['0','1'];
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const toggle=el('motionToggle');
-  let stored = null;
-  try { stored=localStorage.getItem('rtc_matrix_enabled'); } catch (_) {}
-  if (toggle) toggle.checked = stored !== 'false';
-
+  const row=toggle?.closest('.motion-row');
+  let saved=null, fxSaved=null;
+  try {saved=localStorage.getItem('rtc_matrix_enabled');fxSaved=localStorage.getItem('rtc_interface_fx');}catch(_){ }
+  // A manual choice overrides the system default; otherwise honor reduced-motion.
+  if(toggle)toggle.checked=saved==='true'?true:saved==='false'?false:!reduced.matches;
+  const fxRow=document.createElement('label');
+  fxRow.className='motion-row rtc-fx-setting';fxRow.htmlFor='rtcInterfaceFx';
+  fxRow.innerHTML='<span><strong>Transições de tela</strong><small>Apagão digital e varredura neon ao navegar. Desative se preferir uma interface mais simples.</small></span><input id="rtcInterfaceFx" type="checkbox">';
+  if(row && !document.getElementById('rtcInterfaceFx'))row.after(fxRow);
+  const fx=document.getElementById('rtcInterfaceFx');
+  if(fx)fx.checked=fxSaved==='true'?true:fxSaved==='false'?false:!reduced.matches;
+  function syncFx(){
+    document.body.dataset.motion=toggle?.checked?'on':'off';
+    document.body.dataset.interfaceFx=fx?.checked?'on':'off';
+    try{localStorage.setItem('rtc_matrix_enabled',toggle?.checked?'true':'false');localStorage.setItem('rtc_interface_fx',fx?.checked?'true':'false');}catch(_){ }
+  }
+  window.rtcFxEnabled=()=>document.body.dataset.interfaceFx!=='off';
+  toggle?.addEventListener('change',()=>{syncFx();ctx.clearRect(0,0,width,height);});
+  fx?.addEventListener('change',syncFx);syncFx();
+  if(reduced.matches && saved===null){
+    const hint=document.createElement('p');hint.className='small rtc-fx-hint';hint.textContent='Seu dispositivo está configurado para reduzir movimento. Ative os efeitos acima se quiser vê-los mesmo assim.';
+    fxRow.after(hint);
+  }
   let width=0,height=0,cell=24,streams=[],last=0,wasActive=false;
-  function isEnabled(){return !media.matches && !document.hidden && (!toggle || toggle.checked);}
+  const glyph=(japanese)=>{const arr=japanese?jp:bits;return arr[Math.floor(Math.random()*arr.length)];};
+  const isActive=()=>!document.hidden && toggle?.checked!==false;
   function resize(){
-    width=window.innerWidth; height=window.innerHeight;
-    const dpr=Math.min(window.devicePixelRatio||1,1.6);
-    canvas.width=Math.round(width*dpr);
-    canvas.height=Math.round(height*dpr);
+    width=innerWidth;height=innerHeight;
+    const dpr=Math.min(devicePixelRatio||1,1.5);
+    canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    cell=width<700?25:24;
-    streams=Array.from({length:Math.ceil(width/cell)},(_,i)=>({
-      head:Math.random()*((height/cell)+20),
-      speed:.32+Math.random()*.7,
-      length:7+Math.floor(Math.random()*10),
-      japanese:i%4!==0,
-      tint:i%19===0?'#ff6cda':i%13===0?'#b0ff83':'#63edf5',
-      intensity:.58+Math.random()*.4
-    }));
+    cell=width<680?24:25;
+    streams=Array.from({length:Math.ceil(width/cell)},(_,i)=>{
+      const japanese=i%4!==0, length=8+Math.floor(Math.random()*8);
+      return { head:Math.random()*(height/cell+30),speed:.038+Math.random()*.084,length,japanese,
+        tint:i%17===0?'#ff61d6':i%12===0?'#b3ff84':'#4af5f7',
+        glyphs:Array.from({length},()=>glyph(japanese)),glitch:-1,glitchEnd:0};
+    });
     ctx.clearRect(0,0,width,height);
   }
-  function renderRain(time){
-    requestAnimationFrame(renderRain);
-    const on=isEnabled();
-    if (!on){
+  function draw(time){
+    requestAnimationFrame(draw);
+    if(!isActive()){
       if(wasActive)ctx.clearRect(0,0,width,height);
-      wasActive=false;last=time;
-      return;
+      wasActive=false;last=time;return;
     }
     wasActive=true;
-    if (time-last<48)return; // ~20 fps, less battery use on phones
-    const factor=Math.min(1.8,Math.max(.5,(time-last)/48));
-    last=time;
-    // Transparent redraw every frame avoids the black film that hid V8's rain.
+    if(time-last<85)return; // 11 fps, slow + efficient
+    const factor=Math.min(1.6,Math.max(.6,(time-last)/85)); last=time;
     ctx.clearRect(0,0,width,height);
-    ctx.textAlign='left';ctx.textBaseline='top';
-    ctx.font=`600 ${width<700?15:16}px ui-monospace, monospace`;
-    for (let i=0;i<streams.length;i++){
-      const s=streams[i],x=i*cell+3;
-      for(let trail=0;trail<s.length;trail++){
-        const y=(s.head-trail)*cell;
+    ctx.textBaseline='top';ctx.textAlign='left';ctx.font=`600 ${width<680?15:17}px ui-monospace, monospace`;
+    for(let i=0;i<streams.length;i++){
+      const s=streams[i],x=i*cell+2;
+      if(Math.random()<.012){s.glitch=Math.floor(Math.random()*s.length);s.glitchEnd=time+150;}
+      for(let t=0;t<s.length;t++){
+        const y=(s.head-t)*cell;
         if(y<-cell||y>height+cell)continue;
-        const fade=Math.pow(1-trail/s.length,1.45);
-        ctx.globalAlpha=fade*s.intensity*(trail===0?1:.7);
-        ctx.fillStyle=trail===0?'#daffff':s.tint;
-        ctx.shadowBlur=trail===0?12:0;
-        ctx.shadowColor=s.tint;
-        const letter=(s.japanese?jp:bits)[Math.floor(Math.random()*(s.japanese?jp.length:bits.length))];
-        ctx.fillText(letter,x,y);
+        const glitch=t===s.glitch && time<s.glitchEnd;
+        if(glitch)s.glyphs[t]=glyph(!s.japanese); // character or binary switches briefly
+        const alpha=Math.pow(1-t/s.length,1.65);
+        ctx.globalAlpha=alpha*(glitch?1:.75);
+        ctx.fillStyle=glitch?'#ff7ee7':t===0?'#e3ffff':s.tint;
+        ctx.shadowBlur=(t===0||glitch)?11:0;ctx.shadowColor=glitch?'#ff66ec':s.tint;
+        ctx.fillText(s.glyphs[t],x,y);
       }
       s.head+=s.speed*factor;
-      if((s.head-s.length)*cell>height+cell){
-        s.head=-Math.random()*18;
-        s.speed=.32+Math.random()*.7;
-      }
+      if((s.head-s.length)*cell>height+cell){s.head=-Math.random()*16;s.glyphs=Array.from({length:s.length},()=>glyph(s.japanese));}
     }
     ctx.globalAlpha=1;ctx.shadowBlur=0;
   }
-  if(toggle){toggle.addEventListener('change',()=>{
-    const enabled=toggle.checked;
-    document.body.dataset.motion=enabled?'on':'off';
-    try{localStorage.setItem('rtc_matrix_enabled',enabled?'true':'false');}catch(_){ }
-    ctx.clearRect(0,0,width,height);
-  });}
-  document.body.dataset.motion=toggle?.checked===false?'off':'on';
-  window.addEventListener('resize',resize,{passive:true});
-  resize();requestAnimationFrame(renderRain);
+  window.addEventListener('resize',resize,{passive:true});resize();requestAnimationFrame(draw);
 }
 function bind(){
   el('tabLoginBtn')?.addEventListener('click', ()=>setAuthTab('login'));
@@ -650,12 +650,12 @@ function initialize(){
   const suUserWrap = el('suUser')?.closest('div'); if (suUserWrap) suUserWrap.classList.add('hidden');
   const demo = el('demoSeedBtn'); if (demo) demo.remove();
   const loginFooter = bySel('#loginForm .auth-footer');
-  if (loginFooter) loginFooter.innerHTML = '<small>Login persistente via Supabase Auth. O usuário fica salvo até você sair.</small><button class="btn ghost sm" id="forgotBtn" type="button">Recuperar senha</button>';
+  if (loginFooter) loginFooter.innerHTML = '<small>Você continua conectado até escolher sair da conta.</small><button class="btn ghost sm" id="forgotBtn" type="button">Recuperar senha</button>';
   const card = bySel('#authView .auth-card');
   if (card && !el('googleBtn')) {
     const btn = document.createElement('button');
     btn.id = 'googleBtn'; btn.className = 'btn primary full'; btn.type = 'button'; btn.style.marginBottom='14px'; btn.textContent='Entrar com Google';
-    const p = document.createElement('p'); p.className='small'; p.style.marginTop='-6px'; p.textContent='Como a comunidade usará Google, removemos a criação manual de conta da interface principal.';
+    const p = document.createElement('p'); p.className='small'; p.style.marginTop='-6px'; p.textContent='Use sua conta Google para acompanhar estudos, fazer provas e participar da comunidade.';
     card.insertBefore(p, el('authMessage')?.nextSibling || el('loginForm'));
     card.insertBefore(btn, p);
   }
@@ -665,7 +665,7 @@ function initialize(){
     form.innerHTML='<label>Defina uma nova senha</label><input id="resetPassword" type="password" minlength="6" required placeholder="Nova senha (mínimo 6 caracteres)" /><button class="btn primary full" style="margin-top:10px" type="submit">Salvar nova senha</button>';
     card.append(form);
   }
-  safeText('sideUserMeta', 'Conta Supabase');
+  safeText('sideUserMeta', 'Sua conta');
   setupStatic(); bind(); startMatrix(); setAuthTab('login'); showLogin();
 
   if (!ready) { message('Configuração pendente: edite config.js com o Project URL e a publishable key do Supabase.', 'warn'); return; }
